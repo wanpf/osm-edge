@@ -6,6 +6,19 @@ import (
 	"github.com/openservicemesh/osm/pkg/trafficpolicy"
 )
 
+// GetPluginService returns the plugin services for the given mesh services
+func (mc *MeshCatalog) GetPluginService(services []service.MeshService) map[string]*pluginv1alpha1.PluginService {
+	pluginSvcs := make(map[string]*pluginv1alpha1.PluginService)
+	for _, svc := range services {
+		svc.NamespacedKey()
+		pluginSvc := mc.pluginController.GetPluginService(svc)
+		if pluginSvc != nil {
+			pluginSvcs[svc.NamespacedKey()] = pluginSvc
+		}
+	}
+	return pluginSvcs
+}
+
 // GetPluginPolicies returns the plugin policies for the given mesh service
 func (mc *MeshCatalog) GetPluginPolicies(svc service.MeshService) ([]*trafficpolicy.PluginPolicy, error) {
 	plugins := mc.pluginController.GetPlugins()

@@ -32,11 +32,11 @@ type PluginServiceSpec struct {
 
 	// Inbound is the type used to represent the plugin service inbound chain.
 	// +optional
-	Inbound *InboundChainSpec `json:"inbound,omitempty"`
+	Inbound []*InboundChainSpec `json:"inbound,omitempty"`
 
 	// Outbound is the type used to represent the plugin service outbound chain.
 	// +optional
-	Outbound *InboundChainSpec `json:"outbound,omitempty"`
+	Outbound []*OutboundChainSpec `json:"outbound,omitempty"`
 
 	// Unload is the type used to represent the plugin service unload chain.
 	// +optional
@@ -57,14 +57,24 @@ type UnloadChainSpec struct {
 
 // InboundChainSpec is the type used to represent the plugin service inbound chain.
 type InboundChainSpec struct {
-	// Sources are the pod or group of pods to allow plugin traffic
-	Sources []IdentityBindingSubject `json:"sources,omitempty"`
+	// Rules are the traffic rules to allow
+	// +optional
+	Rules []TrafficTargetRule `json:"rules,omitempty"`
+
+	// Plugins is a list of mounted plugins applied
+	Plugins []MountedPlugin `json:"plugins"`
 }
 
 // OutboundChainSpec is the type used to represent the plugin service outbound chain.
 type OutboundChainSpec struct {
-	// Destinations are the pod or group of pods to allow plugin traffic
-	Destinations []IdentityBindingSubject `json:"destinations,omitempty"`
+	IdentityBindingSubject
+
+	// Rules are the traffic rules to allow
+	// +optional
+	Rules []TrafficTargetRule `json:"rules,omitempty"`
+
+	// Plugins is a list of mounted plugins applied
+	Plugins []MountedPlugin `json:"plugins"`
 }
 
 // IdentityBindingSubject is a Kubernetes objects which should be allowed access to the plugin traffic target
@@ -78,13 +88,6 @@ type IdentityBindingSubject struct {
 	// Namespace where the Subject is deployed
 	// +optional
 	Namespace string `json:"namespace,omitempty"`
-
-	// Rules are the traffic rules to allow
-	// +optional
-	Rules []TrafficTargetRule `json:"rules,omitempty"`
-
-	// Plugins is a list of mounted plugins applied
-	Plugins []MountedPlugin `json:"plugins"`
 }
 
 // TrafficTargetRule is the TrafficSpec to allow for a TrafficTarget

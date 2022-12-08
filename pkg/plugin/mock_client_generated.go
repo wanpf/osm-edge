@@ -9,6 +9,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	v1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
+	service "github.com/openservicemesh/osm/pkg/service"
 )
 
 // MockController is a mock of Controller interface.
@@ -46,6 +47,20 @@ func (m *MockController) GetPluginChains() []*v1alpha1.PluginChain {
 func (mr *MockControllerMockRecorder) GetPluginChains() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPluginChains", reflect.TypeOf((*MockController)(nil).GetPluginChains))
+}
+
+// GetPluginService mocks base method.
+func (m *MockController) GetPluginService(arg0 service.MeshService) *v1alpha1.PluginService {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPluginService", arg0)
+	ret0, _ := ret[0].(*v1alpha1.PluginService)
+	return ret0
+}
+
+// GetPluginService indicates an expected call of GetPluginService.
+func (mr *MockControllerMockRecorder) GetPluginService(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPluginService", reflect.TypeOf((*MockController)(nil).GetPluginService), arg0)
 }
 
 // GetPluginServices mocks base method.

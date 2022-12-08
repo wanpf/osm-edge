@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"github.com/openservicemesh/osm/pkg/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
@@ -50,6 +51,20 @@ func NewPluginController(informerCollection *informers.InformerCollection, kubeC
 	client.informers.AddEventHandler(informers.InformerKeyPluginService, k8s.GetEventHandlerFuncs(shouldObserve, pluginServiceEventTypes, msgBroker))
 
 	return client
+}
+
+// GetPluginService get plugin service
+func (c *Client) GetPluginService(svc service.MeshService) *pluginv1alpha1.PluginService {
+	pluginServiceIf, exists, err := c.informers.GetByKey(informers.InformerKeyPluginService, svc.NamespacedKey())
+	if exists && err == nil {
+		pluginService := pluginServiceIf.(*pluginv1alpha1.PluginService)
+		if !c.kubeController.IsMonitoredNamespace(pluginService.Namespace) {
+			log.Warn().Msgf("PluginService %s found, but belongs to a namespace that is not monitored, ignoring it", svc.NamespacedKey())
+			return nil
+		}
+		return pluginService
+	}
+	return nil
 }
 
 // GetPlugins lists plugins

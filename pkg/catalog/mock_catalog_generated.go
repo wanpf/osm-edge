@@ -203,6 +203,20 @@ func (mr *MockMeshCatalogerMockRecorder) GetPluginPolicies(arg0 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPluginPolicies", reflect.TypeOf((*MockMeshCataloger)(nil).GetPluginPolicies), arg0)
 }
 
+// GetPluginService mocks base method.
+func (m *MockMeshCataloger) GetPluginService(arg0 []service.MeshService) map[string]*v1alpha1.PluginService {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPluginService", arg0)
+	ret0, _ := ret[0].(map[string]*v1alpha1.PluginService)
+	return ret0
+}
+
+// GetPluginService indicates an expected call of GetPluginService.
+func (mr *MockMeshCatalogerMockRecorder) GetPluginService(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPluginService", reflect.TypeOf((*MockMeshCataloger)(nil).GetPluginService), arg0)
+}
+
 // GetRetryPolicy mocks base method.
 func (m *MockMeshCataloger) GetRetryPolicy(arg0 identity.ServiceIdentity, arg1 service.MeshService) *v1alpha10.RetryPolicySpec {
 	m.ctrl.T.Helper()

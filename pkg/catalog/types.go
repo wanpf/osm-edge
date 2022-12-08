@@ -105,6 +105,9 @@ type MeshCataloger interface {
 	// GetExportTrafficPolicy returns the export policy for the given mesh service
 	GetExportTrafficPolicy(svc service.MeshService) (*trafficpolicy.ServiceExportTrafficPolicy, error)
 
+	// GetPluginService returns the plugin services for the given mesh services
+	GetPluginService(services []service.MeshService) map[string]*pluginv1alpha1.PluginService
+
 	// GetPluginPolicies returns the plugin policies for the given mesh service
 	GetPluginPolicies(svc service.MeshService) ([]*trafficpolicy.PluginPolicy, error)
 
