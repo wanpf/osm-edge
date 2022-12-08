@@ -71,10 +71,10 @@ rules:
 
   # OSM Edge's custom plugin API
   - apiGroups: ["plugin.flomesh.io"]
-    resources: ["plugins", "pluginchains", "pluginconfigs", "pluginservices"]
+    resources: ["plugins", "pluginchains", "pluginservices"]
     verbs: ["list", "get", "watch"]
   - apiGroups: ["plugin.flomesh.io"]
-    resources: ["plugins/status", "pluginchains/status", "pluginconfigs/status", "pluginservices/status"]
+    resources: ["plugins/status", "pluginchains/status", "pluginservices/status"]
     verbs: ["update"]
 
   # Used for interacting with cert-manager CertificateRequest resources.

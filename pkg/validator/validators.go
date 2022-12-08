@@ -411,3 +411,13 @@ func (kc *policyValidator) pluginValidator(req *admissionv1.AdmissionRequest) (*
 
 	return nil, nil
 }
+
+// pluginChainValidator validates the plugin chain custom resource
+func (kc *policyValidator) pluginChainValidator(req *admissionv1.AdmissionRequest) (*admissionv1.AdmissionResponse, error) {
+	pluginChain := &pluginv1alpha1.PluginChain{}
+	if err := json.NewDecoder(bytes.NewBuffer(req.Object.Raw)).Decode(pluginChain); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
