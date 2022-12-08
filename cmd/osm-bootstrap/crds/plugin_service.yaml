@@ -42,12 +42,231 @@ spec:
           properties:
             spec:
               type: object
-              required:
-                - json
               properties:
-                json:
-                  description: Json defines the json config of the plugin.
-                  type: string
+                onload:
+                  description: Onload is the type used to represent the plugin service onload chain.
+                  type: object
+                  required:
+                    - plugins
+                  properties:
+                    plugins:
+                      description: Plugins is a list of mounted plugins applied.
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - mountpoint
+                          - name
+                          - namespace
+                        properties:
+                          mountpoint:
+                            description: MountPoint defines the mount point of the plugin.
+                            type: string
+                          name:
+                            description: Name defines the name of the plugin.
+                            type: string
+                          namespace:
+                            description: Namespace defines the namespace of the plugin.
+                            type: string
+                inbound:
+                  description: Inbound is the type used to represent the plugin service inbound chain.
+                  type: object
+                  required:
+                    - sources
+                  properties:
+                    sources:
+                      description: Sources are the pod or group of pods to allow plugin traffic
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - kind
+                          - name
+                          - namespace
+                          - plugins
+                        properties:
+                          kind:
+                            description: Kind of this source.
+                            type: string
+                          name:
+                            description: Name of this source.
+                            type: string
+                          namespace:
+                            description: Namespace of this source.
+                            type: string
+                          rules:
+                            description: Rules are the traffic rules to allow.
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - kind
+                                - name
+                                - plugins
+                              properties:
+                                kind:
+                                  description: Kind of the matching group.
+                                  type: string
+                                  enum:
+                                    - HTTPRouteGroup
+                                name:
+                                  description: Name of the matching group.
+                                  type: string
+                                matches:
+                                  description: Match conditions of this route group.
+                                  type: array
+                                  items:
+                                    type: string
+                                plugins:
+                                  description: Plugins is a list of mounted plugins applied.
+                                  type: array
+                                  items:
+                                    type: object
+                                    required:
+                                      - mountpoint
+                                      - name
+                                      - namespace
+                                    properties:
+                                      mountpoint:
+                                        description: MountPoint defines the mount point of the plugin.
+                                        type: string
+                                      name:
+                                        description: Name defines the name of the plugin.
+                                        type: string
+                                      namespace:
+                                        description: Namespace defines the namespace of the plugin.
+                                        type: string
+                          plugins:
+                            description: Plugins is a list of mounted plugins applied.
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - mountpoint
+                                - name
+                                - namespace
+                              properties:
+                                mountpoint:
+                                  description: MountPoint defines the mount point of the plugin.
+                                  type: string
+                                name:
+                                  description: Name defines the name of the plugin.
+                                  type: string
+                                namespace:
+                                  description: Namespace defines the namespace of the plugin.
+                                  type: string
+                outbound:
+                  description: Inbound is the type used to represent the plugin service inbound chain.
+                  type: object
+                  required:
+                    - destinations
+                  properties:
+                    destinations:
+                      description: Sources are the pod or group of pods to allow plugin traffic
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - kind
+                          - name
+                          - namespace
+                          - plugins
+                        properties:
+                          kind:
+                            description: Kind of this source.
+                            type: string
+                          name:
+                            description: Name of this source.
+                            type: string
+                          namespace:
+                            description: Namespace of this source.
+                            type: string
+                          rules:
+                            description: Rules are the traffic rules to allow.
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - kind
+                                - name
+                                - plugins
+                              properties:
+                                kind:
+                                  description: Kind of the matching group.
+                                  type: string
+                                  enum:
+                                    - HTTPRouteGroup
+                                name:
+                                  description: Name of the matching group.
+                                  type: string
+                                matches:
+                                  description: Match conditions of this route group.
+                                  type: array
+                                  items:
+                                    type: string
+                                plugins:
+                                  description: Plugins is a list of mounted plugins applied.
+                                  type: array
+                                  items:
+                                    type: object
+                                    required:
+                                      - mountpoint
+                                      - name
+                                      - namespace
+                                    properties:
+                                      mountpoint:
+                                        description: MountPoint defines the mount point of the plugin.
+                                        type: string
+                                      name:
+                                        description: Name defines the name of the plugin.
+                                        type: string
+                                      namespace:
+                                        description: Namespace defines the namespace of the plugin.
+                                        type: string
+                          plugins:
+                            description: Plugins is a list of mounted plugins applied.
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - mountpoint
+                                - name
+                                - namespace
+                              properties:
+                                mountpoint:
+                                  description: MountPoint defines the mount point of the plugin.
+                                  type: string
+                                name:
+                                  description: Name defines the name of the plugin.
+                                  type: string
+                                namespace:
+                                  description: Namespace defines the namespace of the plugin.
+                                  type: string
+                unload:
+                  description: Unload is the type used to represent the plugin service unload chain.
+                  type: object
+                  required:
+                    - plugins
+                  properties:
+                    plugins:
+                      description: Plugins is a list of mounted plugins applied.
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - mountpoint
+                          - name
+                          - namespace
+                        properties:
+                          mountpoint:
+                            description: MountPoint defines the mount point of the plugin.
+                            type: string
+                          name:
+                            description: Name defines the name of the plugin.
+                            type: string
+                          namespace:
+                            description: Namespace defines the namespace of the plugin.
+                            type: string
                 matches:
                   description: The resource references a plugin config should match on.
                   type: array
