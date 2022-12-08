@@ -27,7 +27,6 @@ type PluginV1alpha1Interface interface {
 	RESTClient() rest.Interface
 	PluginsGetter
 	PluginChainsGetter
-	PluginConfigsGetter
 	PluginServicesGetter
 }
 
@@ -42,10 +41,6 @@ func (c *PluginV1alpha1Client) Plugins(namespace string) PluginInterface {
 
 func (c *PluginV1alpha1Client) PluginChains(namespace string) PluginChainInterface {
 	return newPluginChains(c, namespace)
-}
-
-func (c *PluginV1alpha1Client) PluginConfigs(namespace string) PluginConfigInterface {
-	return newPluginConfigs(c, namespace)
 }
 
 func (c *PluginV1alpha1Client) PluginServices(namespace string) PluginServiceInterface {

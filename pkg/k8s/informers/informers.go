@@ -131,7 +131,6 @@ func WithPluginClient(pluginClient pluginClientset.Interface) InformerCollection
 
 		ic.informers[InformerKeyPlugin] = informerFactory.Plugin().V1alpha1().Plugins().Informer()
 		ic.informers[InformerKeyPluginChain] = informerFactory.Plugin().V1alpha1().PluginChains().Informer()
-		ic.informers[InformerKeyPluginConfig] = informerFactory.Plugin().V1alpha1().PluginConfigs().Informer()
 		ic.informers[InformerKeyPluginService] = informerFactory.Plugin().V1alpha1().PluginServices().Informer()
 	}
 }

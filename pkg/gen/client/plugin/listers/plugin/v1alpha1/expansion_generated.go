@@ -31,14 +31,6 @@ type PluginChainListerExpansion interface{}
 // PluginChainNamespaceLister.
 type PluginChainNamespaceListerExpansion interface{}
 
-// PluginConfigListerExpansion allows custom methods to be added to
-// PluginConfigLister.
-type PluginConfigListerExpansion interface{}
-
-// PluginConfigNamespaceListerExpansion allows custom methods to be added to
-// PluginConfigNamespaceLister.
-type PluginConfigNamespaceListerExpansion interface{}
-
 // PluginServiceListerExpansion allows custom methods to be added to
 // PluginServiceLister.
 type PluginServiceListerExpansion interface{}

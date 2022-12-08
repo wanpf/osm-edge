@@ -54,8 +54,6 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Plugin().V1alpha1().Plugins().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("pluginchains"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Plugin().V1alpha1().PluginChains().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("pluginconfigs"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Plugin().V1alpha1().PluginConfigs().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("pluginservices"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Plugin().V1alpha1().PluginServices().Informer()}, nil
 

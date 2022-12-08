@@ -42,12 +42,121 @@ spec:
           properties:
             spec:
               type: object
-              required:
-                - entry
               properties:
-                entry:
-                  description: Entry defines the entry of the plugin chain.
-                  type: string
+                InboundChains:
+                  description: InboundChains defines the chains of inbound.
+                  type: object
+                  properties:
+                    L4:
+                      description: L4 defines the l4 chains of outbound.
+                      type: object
+                      properties:
+                        TCPFirst:
+                          description: TCPFirst defines TCPFirst sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        TCPAfterTLS:
+                          description: TCPAfterTLS defines TCPAfterTLS sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        TCPAfterRouting:
+                          description: TCPAfterRouting defines TCPAfterRouting sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        TCPLast:
+                          description: TCPLast defines TCPLast sub-chains.
+                          type: array
+                          items:
+                            type: string
+                    L7:
+                      description: L7 defines the l7 chains of inbound.
+                      type: object
+                      properties:
+                        HTTPFirst:
+                          description: HTTPFirst defines HTTPFirst sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterTLS:
+                          description: HTTPAfterTLS defines HTTPAfterTLS sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterDemux:
+                          description: HTTPAfterDemux defines HTTPAfterDemux sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterRouting:
+                          description: HTTPAfterRouting defines HTTPAfterRouting sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterMux:
+                          description: HTTPAfterMux defines HTTPAfterMux sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPLast:
+                          description: HTTPLast defines HTTPLast sub-chains.
+                          type: array
+                          items:
+                            type: string
+                OutboundChains:
+                  description: OutboundChains defines the chains of outbound.
+                  type: object
+                  properties:
+                    L4:
+                      description: L4 defines the l4 chains of outbound.
+                      type: object
+                      properties:
+                        TCPFirst:
+                          description: TCPFirst defines TCPFirst sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        TCPAfterRouting:
+                          description: TCPAfterRouting defines TCPAfterRouting sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        TCPLast:
+                          description: TCPLast defines TCPLast sub-chains.
+                          type: array
+                          items:
+                            type: string
+                    L7:
+                      description: L7 defines the l7 chains of outbound.
+                      type: object
+                      properties:
+                        HTTPFirst:
+                          description: HTTPFirst defines HTTPFirst sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterDemux:
+                          description: HTTPAfterDemux defines HTTPAfterDemux sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterRouting:
+                          description: HTTPAfterRouting defines HTTPAfterRouting sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPAfterMux:
+                          description: HTTPAfterMux defines HTTPAfterMux sub-chains.
+                          type: array
+                          items:
+                            type: string
+                        HTTPLast:
+                          description: HTTPLast defines HTTPLast sub-chains.
+                          type: array
+                          items:
+                            type: string
                 matches:
                   description: The resource references a plugin chain should match on.
                   type: array

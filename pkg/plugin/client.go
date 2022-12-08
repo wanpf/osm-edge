@@ -42,13 +42,6 @@ func NewPluginController(informerCollection *informers.InformerCollection, kubeC
 	}
 	client.informers.AddEventHandler(informers.InformerKeyPluginChain, k8s.GetEventHandlerFuncs(shouldObserve, pluginChainEventTypes, msgBroker))
 
-	pluginConfigEventTypes := k8s.EventTypes{
-		Add:    announcements.PluginConfigAdded,
-		Update: announcements.PluginConfigUpdated,
-		Delete: announcements.PluginConfigDeleted,
-	}
-	client.informers.AddEventHandler(informers.InformerKeyPluginConfig, k8s.GetEventHandlerFuncs(shouldObserve, pluginConfigEventTypes, msgBroker))
-
 	pluginServiceEventTypes := k8s.EventTypes{
 		Add:    announcements.PluginServiceAdded,
 		Update: announcements.PluginServiceUpdated,
@@ -77,16 +70,6 @@ func (c *Client) GetPluginChains() []*pluginv1alpha1.PluginChain {
 		pluginChains = append(pluginChains, pluginChain)
 	}
 	return pluginChains
-}
-
-// GetPluginConfigs lists plugin configs
-func (c *Client) GetPluginConfigs() []*pluginv1alpha1.PluginConfig {
-	var pluginConfigs []*pluginv1alpha1.PluginConfig
-	for _, pluginChainIface := range c.informers.List(informers.InformerKeyPluginConfig) {
-		pluginConfig := pluginChainIface.(*pluginv1alpha1.PluginConfig)
-		pluginConfigs = append(pluginConfigs, pluginConfig)
-	}
-	return pluginConfigs
 }
 
 // GetPluginServices lists plugin services

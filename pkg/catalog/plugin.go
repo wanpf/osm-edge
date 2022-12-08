@@ -36,13 +36,3 @@ func (mc *MeshCatalog) GetPluginChains(svc service.MeshService) ([]*pluginv1alph
 	}
 	return pluginChains, nil
 }
-
-// GetPluginConfigs returns the plugin configs for the given mesh service
-func (mc *MeshCatalog) GetPluginConfigs(svc service.MeshService) ([]*pluginv1alpha1.PluginConfig, error) {
-	pluginConfigs := mc.pluginController.GetPluginConfigs()
-	if pluginConfigs == nil {
-		log.Trace().Msgf("Did not find plugin config for service %s", svc)
-		return nil, nil
-	}
-	return pluginConfigs, nil
-}

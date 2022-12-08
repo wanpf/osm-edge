@@ -110,9 +110,6 @@ type MeshCataloger interface {
 
 	// GetPluginChains returns the plugin chains for the given mesh service
 	GetPluginChains(svc service.MeshService) ([]*pluginv1alpha1.PluginChain, error)
-
-	// GetPluginConfigs returns the plugin configs for the given mesh service
-	GetPluginConfigs(svc service.MeshService) ([]*pluginv1alpha1.PluginConfig, error)
 }
 
 type trafficDirection string

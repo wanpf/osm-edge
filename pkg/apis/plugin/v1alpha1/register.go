@@ -41,8 +41,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&PluginList{},
 		&PluginChain{},
 		&PluginChainList{},
-		&PluginConfig{},
-		&PluginConfigList{},
 		&PluginService{},
 		&PluginServiceList{},
 	)

@@ -269,15 +269,6 @@ const (
 	// PluginChainUpdated is the type of announcement emitted when we observe an update to pluginchains.plugin.flomesh.io
 	PluginChainUpdated Kind = "pluginchain-updated"
 
-	// PluginConfigAdded is the type of announcement emitted when we observe an addition of pluginconfigs.flomesh.io
-	PluginConfigAdded Kind = "pluginconfig-added"
-
-	// PluginConfigDeleted the type of announcement emitted when we observe a deletion of pluginconfigs.plugin.flomesh.io
-	PluginConfigDeleted Kind = "pluginconfig-deleted"
-
-	// PluginConfigUpdated is the type of announcement emitted when we observe an update to pluginconfigs.plugin.flomesh.io
-	PluginConfigUpdated Kind = "pluginconfig-updated"
-
 	// PluginServiceAdded is the type of announcement emitted when we observe an addition of pluginservices.flomesh.io
 	PluginServiceAdded Kind = "pluginservice-added"
 

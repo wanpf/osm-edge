@@ -13,7 +13,6 @@ import (
 	smiSpecs "github.com/servicemeshinterface/smi-sdk-go/pkg/apis/specs/v1alpha4"
 	admissionv1 "k8s.io/api/admission/v1"
 
-	"github.com/tidwall/gjson"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 
 	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
@@ -408,25 +407,6 @@ func (kc *policyValidator) pluginValidator(req *admissionv1.AdmissionRequest) (*
 
 	if len(plugin.Spec.PipyScript) == 0 {
 		return nil, fmt.Errorf("plugin[%s.%s] is missing pipy script", plugin.Name, plugin.Namespace)
-	}
-
-	return nil, nil
-}
-
-// pluginConfigValidator validates the plugin config custom resource
-func (kc *policyValidator) pluginConfigValidator(req *admissionv1.AdmissionRequest) (*admissionv1.AdmissionResponse, error) {
-	pluginConfig := &pluginv1alpha1.PluginConfig{}
-	if err := json.NewDecoder(bytes.NewBuffer(req.Object.Raw)).Decode(pluginConfig); err != nil {
-		return nil, err
-	}
-
-	if len(pluginConfig.Spec.JSON) == 0 {
-		return nil, fmt.Errorf("PluginConfig[%s.%s] is missing json config", pluginConfig.Name, pluginConfig.Namespace)
-	}
-
-	result := gjson.Parse(pluginConfig.Spec.JSON)
-	if !result.Exists() {
-		return nil, fmt.Errorf("PluginConfig[%s.%s].json is wrong format", pluginConfig.Name, pluginConfig.Namespace)
 	}
 
 	return nil, nil

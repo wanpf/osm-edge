@@ -52,7 +52,6 @@ func NewValidatingWebhook(ctx context.Context, cfg *configurator.Client, webhook
 			policyv1alpha1.SchemeGroupVersion.WithKind("UpstreamTrafficSetting").String(): kv.upstreamTrafficSettingValidator,
 			smiAccess.SchemeGroupVersion.WithKind("TrafficTarget").String():               trafficTargetValidator,
 			pluginv1alpha1.SchemeGroupVersion.WithKind("Plugin").String():                 kv.pluginValidator,
-			pluginv1alpha1.SchemeGroupVersion.WithKind("PluginConfig").String():           kv.pluginConfigValidator,
 		},
 	}
 

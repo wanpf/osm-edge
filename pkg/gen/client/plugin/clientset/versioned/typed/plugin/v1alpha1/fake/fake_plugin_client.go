@@ -33,10 +33,6 @@ func (c *FakePluginV1alpha1) PluginChains(namespace string) v1alpha1.PluginChain
 	return &FakePluginChains{c, namespace}
 }
 
-func (c *FakePluginV1alpha1) PluginConfigs(namespace string) v1alpha1.PluginConfigInterface {
-	return &FakePluginConfigs{c, namespace}
-}
-
 func (c *FakePluginV1alpha1) PluginServices(namespace string) v1alpha1.PluginServiceInterface {
 	return &FakePluginServices{c, namespace}
 }
