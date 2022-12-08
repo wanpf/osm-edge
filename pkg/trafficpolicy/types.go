@@ -5,6 +5,7 @@ package trafficpolicy
 import (
 	mapset "github.com/deckarep/golang-set"
 
+	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
 	policyv1alpha1 "github.com/openservicemesh/osm/pkg/apis/policy/v1alpha1"
 
 	"github.com/openservicemesh/osm/pkg/identity"
@@ -80,7 +81,8 @@ type InboundTrafficPolicy struct {
 type Rule struct {
 	Route RouteWeightedClusters `json:"route:omitempty"`
 	// Principals contain the trust domain already while identities do not.
-	AllowedPrincipals mapset.Set `json:"allowed_principals:omitempty"`
+	AllowedPrincipals mapset.Set                      `json:"allowed_principals:omitempty"`
+	Plugins           []*pluginv1alpha1.MountedPlugin `json:"plugins:omitempty"`
 }
 
 // OutboundTrafficPolicy is a struct that associates a list of Routes with outbound traffic on a set of Hostnames
@@ -208,4 +210,6 @@ type TrafficMatch struct {
 	HeaderRateLimit *[]policyv1alpha1.HTTPHeaderSpec
 
 	EgressGateWay *string
+
+	Plugins []*pluginv1alpha1.MountedPlugin
 }

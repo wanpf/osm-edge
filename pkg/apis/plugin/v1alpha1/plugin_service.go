@@ -98,6 +98,17 @@ type TrafficTargetRule struct {
 	// Name of the TrafficSpec to use
 	Name string `json:"name"`
 
+	// Namespace defines the space within which each name must be unique. An empty namespace is
+	// equivalent to the "default" namespace, but "default" is the canonical representation.
+	// Not all objects are required to be scoped to a namespace - the value of this field for
+	// those objects will be empty.
+	//
+	// Must be a DNS_LABEL.
+	// Cannot be updated.
+	// More info: http://kubernetes.io/docs/user-guide/namespaces
+	// +optional
+	Namespace string `json:"namespace,omitempty"`
+
 	// Matches is a list of TrafficSpec routes to allow traffic for
 	// +optional
 	Matches []string `json:"matches,omitempty"`

@@ -1,7 +1,6 @@
 package plugin
 
 import (
-	"github.com/openservicemesh/osm/pkg/service"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/openservicemesh/osm/pkg/k8s"
 	"github.com/openservicemesh/osm/pkg/k8s/informers"
 	"github.com/openservicemesh/osm/pkg/messaging"
+	"github.com/openservicemesh/osm/pkg/service"
 )
 
 // NewPluginController returns a plugin.Controller interface related to functionality provided by the resources in the plugin.flomesh.io API group

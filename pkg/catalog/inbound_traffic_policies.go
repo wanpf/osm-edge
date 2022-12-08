@@ -2,10 +2,12 @@ package catalog
 
 import (
 	"fmt"
+	"reflect"
 
 	mapset "github.com/deckarep/golang-set"
 	access "github.com/servicemeshinterface/smi-sdk-go/pkg/apis/access/v1alpha3"
 
+	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
 	policyv1alpha1 "github.com/openservicemesh/osm/pkg/apis/policy/v1alpha1"
 
 	"github.com/openservicemesh/osm/pkg/constants"
@@ -67,6 +69,7 @@ func (mc *MeshCatalog) GetInboundMeshTrafficPolicy(upstreamIdentity identity.Ser
 		upstreamTrafficSetting := mc.policyController.GetUpstreamTrafficSetting(
 			policy.UpstreamTrafficSettingGetOpt{MeshService: &upstreamSvc})
 
+		pluginSvc := mc.pluginController.GetPluginService(upstreamSvc)
 		// ---
 		// Create a TrafficMatch for this upstream servic.
 		// The TrafficMatch will be used by LDS to program a filter chain match
@@ -88,6 +91,14 @@ func (mc *MeshCatalog) GetInboundMeshTrafficPolicy(upstreamIdentity identity.Ser
 				ServerNames:         []string{upstreamSvc.ServerName()},
 				Cluster:             upstreamSvc.SidecarLocalClusterName(),
 			}
+			if pluginSvc != nil {
+				for _, inboundPlugin := range pluginSvc.Spec.Inbound {
+					for _, loopPlugin := range inboundPlugin.Plugins {
+						plugin := loopPlugin
+						trafficMatchForUpstreamSvc.Plugins = append(trafficMatchForUpstreamSvc.Plugins, &plugin)
+					}
+				}
+			}
 			if upstreamTrafficSetting != nil {
 				trafficMatchForUpstreamSvc.RateLimit = upstreamTrafficSetting.Spec.RateLimit
 				trafficMatchForUpstreamSvc.HeaderRateLimit = &upstreamTrafficSetting.Spec.HTTPHeaders
@@ -106,7 +117,7 @@ func (mc *MeshCatalog) GetInboundMeshTrafficPolicy(upstreamIdentity identity.Ser
 		// The routes are derived from SMI TrafficTarget and TrafficSplit policies in SMI mode,
 		// and are wildcarded in permissive mode. The downstreams that can access this upstream
 		// on the configured routes is also determined based on the traffic policy mode.
-		inboundTrafficPolicies := mc.getInboundTrafficPoliciesForUpstream(upstreamSvc, permissiveMode, trafficTargets, upstreamTrafficSetting)
+		inboundTrafficPolicies := mc.getInboundTrafficPoliciesForUpstream(upstreamSvc, permissiveMode, trafficTargets, upstreamTrafficSetting, pluginSvc)
 		routeConfigPerPort[int(upstreamSvc.TargetPort)] = append(routeConfigPerPort[int(upstreamSvc.TargetPort)], inboundTrafficPolicies)
 	}
 
@@ -118,7 +129,8 @@ func (mc *MeshCatalog) GetInboundMeshTrafficPolicy(upstreamIdentity identity.Ser
 }
 
 func (mc *MeshCatalog) getInboundTrafficPoliciesForUpstream(upstreamSvc service.MeshService, permissiveMode bool,
-	trafficTargets []*access.TrafficTarget, upstreamTrafficSetting *policyv1alpha1.UpstreamTrafficSetting) *trafficpolicy.InboundTrafficPolicy {
+	trafficTargets []*access.TrafficTarget, upstreamTrafficSetting *policyv1alpha1.UpstreamTrafficSetting,
+	pluginSvc *pluginv1alpha1.PluginService) *trafficpolicy.InboundTrafficPolicy {
 	var inboundPolicyForUpstreamSvc *trafficpolicy.InboundTrafficPolicy
 
 	if permissiveMode {
@@ -130,22 +142,68 @@ func (mc *MeshCatalog) getInboundTrafficPoliciesForUpstream(upstreamSvc service.
 			Weight:      constants.ClusterWeightAcceptAll,
 		}
 		// Only a single rule for permissive mode.
-		inboundPolicyForUpstreamSvc.Rules = []*trafficpolicy.Rule{
-			{
-				Route:             *trafficpolicy.NewRouteWeightedCluster(trafficpolicy.WildCardRouteMatch, []service.WeightedCluster{localCluster}, upstreamTrafficSetting),
-				AllowedPrincipals: mapset.NewSetWith(identity.WildcardPrincipal),
-			},
+		wildcardRule := trafficpolicy.Rule{
+			Route:             *trafficpolicy.NewRouteWeightedCluster(trafficpolicy.WildCardRouteMatch, []service.WeightedCluster{localCluster}, upstreamTrafficSetting),
+			AllowedPrincipals: mapset.NewSetWith(identity.WildcardPrincipal),
 		}
+		wildcardRule.Plugins = mc.getInboundRouteRulePlugins(pluginSvc, &trafficpolicy.WildCardRouteMatch)
+		inboundPolicyForUpstreamSvc.Rules = []*trafficpolicy.Rule{&wildcardRule}
 	} else {
 		// Build the HTTP routes from SMI TrafficTarget and HTTPRouteGroup configurations
-		inboundPolicyForUpstreamSvc = mc.buildInboundHTTPPolicyFromTrafficTarget(upstreamSvc, trafficTargets, upstreamTrafficSetting)
+		inboundPolicyForUpstreamSvc = mc.buildInboundHTTPPolicyFromTrafficTarget(upstreamSvc, trafficTargets, upstreamTrafficSetting, pluginSvc)
 	}
 
 	return inboundPolicyForUpstreamSvc
 }
 
+func (mc *MeshCatalog) getInboundRouteRulePlugins(pluginSvc *pluginv1alpha1.PluginService, routeMatch *trafficpolicy.HTTPRouteMatch) []*pluginv1alpha1.MountedPlugin {
+	if pluginSvc == nil {
+		return nil
+	}
+	var matchedPlugins []*pluginv1alpha1.MountedPlugin
+	for _, inboundPlugin := range pluginSvc.Spec.Inbound {
+		matched := false
+		for _, rule := range inboundPlugin.Rules {
+			if rule.Kind == smi.HTTPRouteGroupKind {
+				namespace := rule.Namespace
+				if len(namespace) == 0 {
+					namespace = pluginSvc.Namespace
+				}
+				httpRouteName := fmt.Sprintf("%s/%s", namespace, rule.Name)
+				if httpRouteGroup := mc.meshSpec.GetHTTPRouteGroup(httpRouteName); httpRouteGroup == nil {
+					log.Error().Str(errcode.Kind, errcode.GetErrCodeWithMetric(errcode.ErrSMIHTTPRouteGroupNoMatch)).
+						Msgf("Error fetching HTTPRouteGroup resource %s referenced in PluginService %s/%s", httpRouteName, pluginSvc.Namespace, pluginSvc.Name)
+				} else {
+					var matches []trafficpolicy.HTTPRouteMatch
+					if len(rule.Matches) == 0 {
+						matches = getHTTPRouteMatchesFromHTTPRouteGroup(httpRouteGroup)
+					} else {
+						matches = getHTTPRouteMatchesFromHTTPRouteGroupByNames(httpRouteGroup, rule.Matches)
+					}
+					for _, match := range matches {
+						if reflect.DeepEqual(match, *routeMatch) {
+							matched = true
+							break
+						}
+					}
+				}
+			}
+			if matched {
+				break
+			}
+		}
+		if matched {
+			for _, loopPlugin := range inboundPlugin.Plugins {
+				plugin := loopPlugin
+				matchedPlugins = append(matchedPlugins, &plugin)
+			}
+		}
+	}
+	return matchedPlugins
+}
+
 func (mc *MeshCatalog) buildInboundHTTPPolicyFromTrafficTarget(upstreamSvc service.MeshService, trafficTargets []*access.TrafficTarget,
-	upstreamTrafficSetting *policyv1alpha1.UpstreamTrafficSetting) *trafficpolicy.InboundTrafficPolicy {
+	upstreamTrafficSetting *policyv1alpha1.UpstreamTrafficSetting, pluginSvc *pluginv1alpha1.PluginService) *trafficpolicy.InboundTrafficPolicy {
 	hostnames := k8s.GetHostnamesForService(upstreamSvc, true /* local namespace FQDN should always be allowed for inbound routes*/)
 	inboundPolicy := trafficpolicy.NewInboundTrafficPolicy(upstreamSvc.FQDN(), hostnames, upstreamTrafficSetting)
 
@@ -157,7 +215,7 @@ func (mc *MeshCatalog) buildInboundHTTPPolicyFromTrafficTarget(upstreamSvc servi
 	var routingRules []*trafficpolicy.Rule
 	// From each TrafficTarget and HTTPRouteGroup configuration associated with this service, build routes for it.
 	for _, trafficTarget := range trafficTargets {
-		rules := mc.getRoutingRulesFromTrafficTarget(*trafficTarget, localCluster, upstreamTrafficSetting)
+		rules := mc.getRoutingRulesFromTrafficTarget(*trafficTarget, localCluster, upstreamTrafficSetting, pluginSvc)
 		// Multiple TrafficTarget objects can reference the same route, in which case such routes
 		// need to be merged to create a single route that includes all the downstream client identities
 		// this route is authorized for.
@@ -169,7 +227,7 @@ func (mc *MeshCatalog) buildInboundHTTPPolicyFromTrafficTarget(upstreamSvc servi
 }
 
 func (mc *MeshCatalog) getRoutingRulesFromTrafficTarget(trafficTarget access.TrafficTarget, routingCluster service.WeightedCluster,
-	upstreamTrafficSetting *policyv1alpha1.UpstreamTrafficSetting) []*trafficpolicy.Rule {
+	upstreamTrafficSetting *policyv1alpha1.UpstreamTrafficSetting, pluginSvc *pluginv1alpha1.PluginService) []*trafficpolicy.Rule {
 	// Compute the HTTP route matches associated with the given TrafficTarget object
 	httpRouteMatches, err := mc.routesFromRules(trafficTarget.Spec.Rules, trafficTarget.Namespace)
 	if err != nil {
@@ -186,11 +244,13 @@ func (mc *MeshCatalog) getRoutingRulesFromTrafficTarget(trafficTarget access.Tra
 	}
 
 	var routingRules []*trafficpolicy.Rule
-	for _, httpRouteMatch := range httpRouteMatches {
+	for _, loopHTTPRouteMatch := range httpRouteMatches {
+		httpRouteMatch := loopHTTPRouteMatch
 		rule := &trafficpolicy.Rule{
 			Route:             *trafficpolicy.NewRouteWeightedCluster(httpRouteMatch, []service.WeightedCluster{routingCluster}, upstreamTrafficSetting),
 			AllowedPrincipals: allowedDownstreamPrincipals,
 		}
+		rule.Plugins = mc.getInboundRouteRulePlugins(pluginSvc, &httpRouteMatch)
 		routingRules = append(routingRules, rule)
 	}
 

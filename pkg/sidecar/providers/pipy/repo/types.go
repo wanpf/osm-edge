@@ -6,6 +6,8 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 
+	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
+
 	"github.com/openservicemesh/osm/pkg/apis/policy/v1alpha1"
 	"github.com/openservicemesh/osm/pkg/catalog"
 	"github.com/openservicemesh/osm/pkg/certificate"
@@ -254,7 +256,8 @@ type WeightedCluster struct {
 // InboundHTTPRouteRule http route rule
 type InboundHTTPRouteRule struct {
 	HTTPRouteRule
-	RateLimit *HTTPPerRouteRateLimit `json:"RateLimit"`
+	RateLimit *HTTPPerRouteRateLimit          `json:"RateLimit"`
+	Plugins   []*pluginv1alpha1.MountedPlugin `json:"Plugins"`
 }
 
 // InboundHTTPRouteRuleSlice http route rule array
@@ -272,14 +275,15 @@ type InboundHTTPServiceRouteRules map[HTTPRouteRuleName]*InboundHTTPRouteRules
 
 // InboundTrafficMatch represents the match of InboundTraffic
 type InboundTrafficMatch struct {
-	Port                  Port     `json:"Port"`
-	Protocol              Protocol `json:"Protocol"`
-	SourceIPRanges        SourceIPRanges
-	HTTPHostPort2Service  HTTPHostPort2Service         `json:"HttpHostPort2Service"`
-	HTTPServiceRouteRules InboundHTTPServiceRouteRules `json:"HttpServiceRouteRules"`
-	TargetClusters        WeightedClusters             `json:"TargetClusters"`
-	AllowedEndpoints      AllowedEndpoints
-	RateLimit             *TCPRateLimit `json:"RateLimit"`
+	Port                  Port                            `json:"Port"`
+	Protocol              Protocol                        `json:"Protocol"`
+	SourceIPRanges        SourceIPRanges                  `json:"SourceIPRanges"`
+	HTTPHostPort2Service  HTTPHostPort2Service            `json:"HttpHostPort2Service"`
+	HTTPServiceRouteRules InboundHTTPServiceRouteRules    `json:"HttpServiceRouteRules"`
+	TargetClusters        WeightedClusters                `json:"TargetClusters"`
+	AllowedEndpoints      AllowedEndpoints                `json:"AllowedEndpoints"`
+	Plugins               []*pluginv1alpha1.MountedPlugin `json:"Plugins"`
+	RateLimit             *TCPRateLimit                   `json:"RateLimit"`
 }
 
 // InboundTrafficMatches is a wrapper type of map[Port]*InboundTrafficMatch

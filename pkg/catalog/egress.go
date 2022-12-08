@@ -309,3 +309,41 @@ func getHTTPRouteMatchesFromHTTPRouteGroup(httpRouteGroup *smiSpecs.HTTPRouteGro
 
 	return matches
 }
+
+func getHTTPRouteMatchesFromHTTPRouteGroupByNames(httpRouteGroup *smiSpecs.HTTPRouteGroup, matchNames []string) []trafficpolicy.HTTPRouteMatch {
+	if httpRouteGroup == nil {
+		return nil
+	}
+
+	var matches []trafficpolicy.HTTPRouteMatch
+	for _, match := range httpRouteGroup.Spec.Matches {
+		matched := false
+		for _, matchName := range matchNames {
+			if matchName == match.Name {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			continue
+		}
+		httpRouteMatch := trafficpolicy.HTTPRouteMatch{
+			Path:          match.PathRegex,
+			PathMatchType: trafficpolicy.PathMatchRegex,
+			Methods:       match.Methods,
+			Headers:       match.Headers,
+		}
+
+		// When pathRegex and/or methods are not defined, they should be wildcarded
+		if httpRouteMatch.Path == "" {
+			httpRouteMatch.Path = constants.RegexMatchAll
+		}
+		if len(httpRouteMatch.Methods) == 0 {
+			httpRouteMatch.Methods = []string{constants.WildcardHTTPMethod}
+		}
+
+		matches = append(matches, httpRouteMatch)
+	}
+
+	return matches
+}

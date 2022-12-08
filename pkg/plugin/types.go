@@ -2,7 +2,6 @@
 package plugin
 
 import (
-	"github.com/openservicemesh/osm/pkg/service"
 	"k8s.io/client-go/kubernetes"
 
 	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
@@ -10,6 +9,7 @@ import (
 	"github.com/openservicemesh/osm/pkg/k8s"
 	"github.com/openservicemesh/osm/pkg/k8s/informers"
 	"github.com/openservicemesh/osm/pkg/logger"
+	"github.com/openservicemesh/osm/pkg/service"
 )
 
 var (
