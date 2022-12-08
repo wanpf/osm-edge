@@ -83,6 +83,7 @@ require (
 	github.com/briandowns/spinner v1.19.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/pkg/errors v0.9.1
+	github.com/tidwall/gjson v1.14.4
 	k8s.io/kubectl v0.23.5
 )
 
@@ -337,6 +338,8 @@ require (
 	github.com/tdakkota/asciicheck v0.0.0-20200416190851-d7f85be797a2 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go v1.0.162 // indirect
 	github.com/tetafro/godot v0.4.9 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/timakin/bodyclose v0.0.0-20190930140734-f7f2e9bca95e // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect

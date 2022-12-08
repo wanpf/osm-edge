@@ -46,6 +46,8 @@ type Proxy struct {
 	// The version of Pipy Repo Codebase
 	ETag uint64
 
+	PlugInItems map[string][]byte
+
 	Mutex *sync.RWMutex
 	Quit  chan bool
 }

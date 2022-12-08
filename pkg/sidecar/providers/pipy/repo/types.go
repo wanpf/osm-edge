@@ -285,8 +285,18 @@ type InboundTrafficMatch struct {
 // InboundTrafficMatches is a wrapper type of map[Port]*InboundTrafficMatch
 type InboundTrafficMatches map[Port]*InboundTrafficMatch
 
-// OutboundHTTPRouteRules is a wrapper type of map[URIPathRegexp]*HTTPRouteRule
-type OutboundHTTPRouteRules []*HTTPRouteRule
+// OutboundHTTPRouteRule http route rule
+type OutboundHTTPRouteRule struct {
+	HTTPRouteRule
+}
+
+// OutboundHTTPRouteRuleSlice http route rule array
+type OutboundHTTPRouteRuleSlice []*OutboundHTTPRouteRule
+
+// OutboundHTTPRouteRules is a wrapper type
+type OutboundHTTPRouteRules struct {
+	RouteRules OutboundHTTPRouteRuleSlice `json:"RouteRules"`
+}
 
 // OutboundHTTPServiceRouteRules is a wrapper type of map[HTTPRouteRuleName]*HTTPRouteRules
 type OutboundHTTPServiceRouteRules map[HTTPRouteRuleName]*OutboundHTTPRouteRules
@@ -450,15 +460,22 @@ type HTTPConnectionSettings struct {
 	CircuitBreaking *HTTPCircuitBreaking `json:"CircuitBreaking,omitempty"`
 }
 
+// PluginSpec is the spec of plugin
+type PluginSpec struct {
+	Name   string `json:"Path"`
+	Script string
+}
+
 // PipyConf is a policy used by pipy sidecar
 type PipyConf struct {
 	Ts               *time.Time
 	Version          *string
 	Spec             MeshConfigSpec
 	Certificate      *Certificate
-	Inbound          *InboundTrafficPolicy    `json:"Inbound"`
-	Outbound         *OutboundTrafficPolicy   `json:"Outbound"`
-	Forward          *ForwardTrafficPolicy    `json:"Forward"`
-	AllowedEndpoints map[string]string        `json:"AllowedEndpoints"`
+	Inbound          *InboundTrafficPolicy  `json:"Inbound"`
+	Outbound         *OutboundTrafficPolicy `json:"Outbound"`
+	Forward          *ForwardTrafficPolicy  `json:"Forward"`
+	AllowedEndpoints map[string]string      `json:"AllowedEndpoints"`
+	Plugins          []*PluginSpec
 	DNSResolveDB     map[string][]interface{} `json:"DNSResolveDB,omitempty"`
 }

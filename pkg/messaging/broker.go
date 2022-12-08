@@ -301,8 +301,6 @@ func getProxyUpdateEvent(msg events.PubSubMessage) *proxyUpdateEvent {
 		// SMI TrafficTarget event
 		announcements.TrafficTargetAdded, announcements.TrafficTargetDeleted, announcements.TrafficTargetUpdated,
 		//
-		// Proxy events
-		//
 		// MultiCluster events
 		//
 		// ServiceImport event
@@ -311,6 +309,17 @@ func getProxyUpdateEvent(msg events.PubSubMessage) *proxyUpdateEvent {
 		announcements.ServiceExportAdded, announcements.ServiceExportDeleted, announcements.ServiceExportUpdated,
 		// GlobalTrafficPolicy event
 		announcements.GlobalTrafficPolicyAdded, announcements.GlobalTrafficPolicyDeleted, announcements.GlobalTrafficPolicyUpdated,
+		//
+		// Plugin events
+		//
+		// Plugin event
+		announcements.PluginAdded, announcements.PluginDeleted, announcements.PluginUpdated,
+		// PluginChain event
+		announcements.PluginChainAdded, announcements.PluginChainDeleted, announcements.PluginChainUpdated,
+		// PluginConfig event
+		announcements.PluginConfigAdded, announcements.PluginConfigDeleted, announcements.PluginConfigUpdated,
+		//
+		// Proxy events
 		//
 		announcements.ProxyUpdate:
 		return &proxyUpdateEvent{

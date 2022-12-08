@@ -61,8 +61,8 @@ func (job *PipyConfGeneratorJob) Run() {
 	balance(pipyConf)
 	reorder(pipyConf)
 	endpoints(pipyConf, s)
-
-	job.publishSidecarConf(s.repoClient, proxy, pipyConf)
+	curItems := plugins(cataloger, proxyServices, pipyConf)
+	job.publishSidecarConf(s.repoClient, proxy, pipyConf, curItems)
 }
 
 func endpoints(pipyConf *PipyConf, s *Server) {
@@ -84,7 +84,7 @@ func reorder(pipyConf *PipyConf) {
 		for _, trafficMatches := range pipyConf.Outbound.TrafficMatches {
 			for _, trafficMatch := range trafficMatches {
 				for _, routeRules := range trafficMatch.HTTPServiceRouteRules {
-					routeRules.sort()
+					routeRules.RouteRules.sort()
 				}
 			}
 		}
@@ -267,7 +267,28 @@ func probes(proxy *pipy.Proxy, pipyConf *PipyConf) {
 	}
 }
 
-func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoClient, proxy *pipy.Proxy, pipyConf *PipyConf) {
+func plugins(cataloger catalog.MeshCataloger, proxyServices []service.MeshService, pipyConf *PipyConf) map[string][]byte {
+	pluginItems := make(map[string][]byte)
+	pipyConf.Plugins = nil
+	if len(proxyServices) > 0 {
+		pipyConf.Plugins = make([]*PluginSpec, 0)
+		for _, svc := range proxyServices {
+			if pluginPolicies, pluginErr := cataloger.GetPluginPolicies(svc); pluginErr == nil {
+				for _, plugin := range pluginPolicies {
+					pluginSpec := new(PluginSpec)
+					pluginSpec.Name = fmt.Sprintf("plugins/%s-%s.js", plugin.Namespace, plugin.Name)
+					pluginSpec.Script = plugin.Script
+					pluginItems[pluginSpec.Name] = []byte(pluginSpec.Script)
+					pipyConf.Plugins = append(pipyConf.Plugins, pluginSpec)
+				}
+			}
+		}
+	}
+	return pluginItems
+}
+
+func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoClient,
+	proxy *pipy.Proxy, pipyConf *PipyConf, curItems map[string][]byte) {
 	pipyConf.Ts = nil
 	pipyConf.Version = nil
 	pipyConf.Certificate = nil
@@ -279,6 +300,10 @@ func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoC
 	bytes, jsonErr := json.Marshal(pipyConf)
 
 	if jsonErr == nil {
+		for _, content := range curItems {
+			bytes = append(bytes, content...)
+		}
+
 		codebasePreV := proxy.ETag
 		codebaseCurV := hash(bytes)
 		if codebaseCurV != codebasePreV {
@@ -296,17 +321,41 @@ func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoC
 					pipyConf.Certificate.IssuingCA = string(proxy.SidecarCert.IssuingCA)
 				}
 				bytes, _ = json.MarshalIndent(pipyConf, "", " ")
-				_, err = repoClient.Batch(fmt.Sprintf("%d", codebaseCurV), []client.Batch{
+				codebaseItems := []client.BatchItem{
+					{
+						Filename: osmCodebaseConfig,
+						Content:  bytes,
+					},
+				}
+				for name, content := range curItems {
+					codebaseItems = append(codebaseItems, client.BatchItem{
+						Filename: name,
+						Content:  content,
+					})
+				}
+				if proxy.PlugInItems != nil {
+					for name, content := range proxy.PlugInItems {
+						obsolete := true
+						if curItems != nil {
+							if _, exists := curItems[name]; exists {
+								obsolete = false
+							}
+						}
+						codebaseItems = append(codebaseItems, client.BatchItem{
+							Filename: name,
+							Content:  content,
+							Obsolete: obsolete,
+						})
+					}
+				}
+				if _, err = repoClient.Batch(fmt.Sprintf("%d", codebaseCurV), []client.Batch{
 					{
 						Basepath: codebase,
-						Items: []client.BatchItem{
-							{
-								Filename: osmCodebaseConfig,
-								Content:  bytes,
-							},
-						},
+						Items:    codebaseItems,
 					},
-				})
+				}); err == nil {
+					proxy.PlugInItems = curItems
+				}
 			}
 			if err != nil {
 				log.Error().Err(err)
