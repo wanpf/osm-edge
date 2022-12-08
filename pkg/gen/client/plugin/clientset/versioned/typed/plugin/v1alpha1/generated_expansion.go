@@ -20,3 +20,5 @@ type PluginExpansion interface{}
 type PluginChainExpansion interface{}
 
 type PluginConfigExpansion interface{}
+
+type PluginServiceExpansion interface{}

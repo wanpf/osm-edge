@@ -65,6 +65,8 @@ const (
 	InformerKeyPluginChain InformerKey = "PluginChain"
 	// InformerKeyPluginConfig is the InformerKey for a PluginConfig informer
 	InformerKeyPluginConfig InformerKey = "PluginConfig"
+	// InformerKeyPluginService is the InformerKey for a PluginService informer
+	InformerKeyPluginService InformerKey = "PluginService"
 )
 
 const (

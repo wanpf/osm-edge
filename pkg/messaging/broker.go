@@ -318,6 +318,8 @@ func getProxyUpdateEvent(msg events.PubSubMessage) *proxyUpdateEvent {
 		announcements.PluginChainAdded, announcements.PluginChainDeleted, announcements.PluginChainUpdated,
 		// PluginConfig event
 		announcements.PluginConfigAdded, announcements.PluginConfigDeleted, announcements.PluginConfigUpdated,
+		// PluginService event
+		announcements.PluginServiceAdded, announcements.PluginServiceDeleted, announcements.PluginServiceUpdated,
 		//
 		// Proxy events
 		//

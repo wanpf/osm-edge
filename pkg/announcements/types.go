@@ -277,6 +277,15 @@ const (
 
 	// PluginConfigUpdated is the type of announcement emitted when we observe an update to pluginconfigs.plugin.flomesh.io
 	PluginConfigUpdated Kind = "pluginconfig-updated"
+
+	// PluginServiceAdded is the type of announcement emitted when we observe an addition of pluginservices.flomesh.io
+	PluginServiceAdded Kind = "pluginservice-added"
+
+	// PluginServiceDeleted the type of announcement emitted when we observe a deletion of pluginservices.plugin.flomesh.io
+	PluginServiceDeleted Kind = "pluginservice-deleted"
+
+	// PluginServiceUpdated is the type of announcement emitted when we observe an update to pluginservices.plugin.flomesh.io
+	PluginServiceUpdated Kind = "pluginservice-updated"
 )
 
 // Announcement is a struct for messages between various components of OSM signaling a need for a change in Sidecar proxy configuration

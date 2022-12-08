@@ -28,6 +28,7 @@ type PluginV1alpha1Interface interface {
 	PluginsGetter
 	PluginChainsGetter
 	PluginConfigsGetter
+	PluginServicesGetter
 }
 
 // PluginV1alpha1Client is used to interact with features provided by the plugin.flomesh.io group.
@@ -45,6 +46,10 @@ func (c *PluginV1alpha1Client) PluginChains(namespace string) PluginChainInterfa
 
 func (c *PluginV1alpha1Client) PluginConfigs(namespace string) PluginConfigInterface {
 	return newPluginConfigs(c, namespace)
+}
+
+func (c *PluginV1alpha1Client) PluginServices(namespace string) PluginServiceInterface {
+	return newPluginServices(c, namespace)
 }
 
 // NewForConfig creates a new PluginV1alpha1Client for the given config.

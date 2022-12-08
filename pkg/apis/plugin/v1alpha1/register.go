@@ -43,6 +43,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&PluginChainList{},
 		&PluginConfig{},
 		&PluginConfigList{},
+		&PluginService{},
+		&PluginServiceList{},
 	)
 
 	metav1.AddToGroupVersion(

@@ -27,6 +27,8 @@ type Interface interface {
 	PluginChains() PluginChainInformer
 	// PluginConfigs returns a PluginConfigInformer.
 	PluginConfigs() PluginConfigInformer
+	// PluginServices returns a PluginServiceInformer.
+	PluginServices() PluginServiceInformer
 }
 
 type version struct {
@@ -53,4 +55,9 @@ func (v *version) PluginChains() PluginChainInformer {
 // PluginConfigs returns a PluginConfigInformer.
 func (v *version) PluginConfigs() PluginConfigInformer {
 	return &pluginConfigInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// PluginServices returns a PluginServiceInformer.
+func (v *version) PluginServices() PluginServiceInformer {
+	return &pluginServiceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

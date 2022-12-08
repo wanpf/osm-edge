@@ -38,3 +38,11 @@ type PluginConfigListerExpansion interface{}
 // PluginConfigNamespaceListerExpansion allows custom methods to be added to
 // PluginConfigNamespaceLister.
 type PluginConfigNamespaceListerExpansion interface{}
+
+// PluginServiceListerExpansion allows custom methods to be added to
+// PluginServiceLister.
+type PluginServiceListerExpansion interface{}
+
+// PluginServiceNamespaceListerExpansion allows custom methods to be added to
+// PluginServiceNamespaceLister.
+type PluginServiceNamespaceListerExpansion interface{}
