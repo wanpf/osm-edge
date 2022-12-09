@@ -32,11 +32,11 @@ type PluginServiceSpec struct {
 
 	// Inbound is the type used to represent the plugin service inbound chain.
 	// +optional
-	Inbound []*InboundChainSpec `json:"inbound,omitempty"`
+	Inbound *InboundChainSpec `json:"inbound,omitempty"`
 
 	// Outbound is the type used to represent the plugin service outbound chain.
 	// +optional
-	Outbound []*OutboundChainSpec `json:"outbound,omitempty"`
+	Outbound *OutboundChainSpec `json:"outbound,omitempty"`
 
 	// Unload is the type used to represent the plugin service unload chain.
 	// +optional
@@ -46,57 +46,69 @@ type PluginServiceSpec struct {
 // OnloadChainSpec is the type used to represent the plugin service onload chain.
 type OnloadChainSpec struct {
 	// Plugins is a list of mounted plugins applied
-	Plugins []MountedPlugin `json:"plugins"`
+	Plugins []MountedPlugin `json:"plugins,omitempty"`
 }
 
 // UnloadChainSpec is the type used to represent the plugin service unload chain.
 type UnloadChainSpec struct {
 	// Plugins is a list of mounted plugins applied
-	Plugins []MountedPlugin `json:"plugins"`
+	Plugins []MountedPlugin `json:"plugins,omitempty"`
 }
 
 // InboundChainSpec is the type used to represent the plugin service inbound chain.
 type InboundChainSpec struct {
-	// Rules are the traffic rules to allow
+	// TargetRoutes are the traffic target routes to allow
 	// +optional
-	Rules []TrafficTargetRule `json:"rules,omitempty"`
+	TargetRoutes []TrafficTargetRoute `json:"targetRoutes,omitempty"`
 
 	// Plugins is a list of mounted plugins applied
-	Plugins []MountedPlugin `json:"plugins"`
+	Plugins []MountedPlugin `json:"plugins,omitempty"`
 }
 
 // OutboundChainSpec is the type used to represent the plugin service outbound chain.
 type OutboundChainSpec struct {
-	IdentityBindingSubject
-
-	// Rules are the traffic rules to allow
+	// TargetServices are the traffic services to allow
 	// +optional
-	Rules []TrafficTargetRule `json:"rules,omitempty"`
+	TargetServices []TrafficTargetService `json:"targetServices,omitempty"`
 
 	// Plugins is a list of mounted plugins applied
-	Plugins []MountedPlugin `json:"plugins"`
+	Plugins []MountedPlugin `json:"plugins,omitempty"`
 }
 
-// IdentityBindingSubject is a Kubernetes objects which should be allowed access to the plugin traffic target
-type IdentityBindingSubject struct {
-	// Kind is the type of Subject to allow ingress (ServiceAccount | Group)
-	Kind string `json:"kind"`
-
-	// Name of the Subject, i.e. ServiceAccountName
-	Name string `json:"name"`
-
-	// Namespace where the Subject is deployed
-	// +optional
-	Namespace string `json:"namespace,omitempty"`
-}
-
-// TrafficTargetRule is the TrafficSpec to allow for a TrafficTarget
-type TrafficTargetRule struct {
+// TrafficTargetService is the Traffic Service to allow for a TrafficTarget
+type TrafficTargetService struct {
 	// Kind is the kind of TrafficSpec to allow
-	Kind string `json:"kind"`
+	Kind string `json:"kind,omitempty"`
 
 	// Name of the TrafficSpec to use
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
+
+	// Namespace defines the space within which each name must be unique. An empty namespace is
+	// equivalent to the "default" namespace, but "default" is the canonical representation.
+	// Not all objects are required to be scoped to a namespace - the value of this field for
+	// those objects will be empty.
+	//
+	// Must be a DNS_LABEL.
+	// Cannot be updated.
+	// More info: http://kubernetes.io/docs/user-guide/namespaces
+	// +optional
+	Namespace string `json:"namespace,omitempty"`
+
+	// TargetRoutes are the traffic target routes to allow
+	// +optional
+	TargetRoutes []TrafficTargetRoute `json:"targetRoutes,omitempty"`
+
+	// Plugins is a list of mounted plugins applied
+	Plugins []MountedPlugin `json:"plugins,omitempty"`
+}
+
+// TrafficTargetRoute is the Traffic Route to allow for a TrafficTarget
+type TrafficTargetRoute struct {
+	// Kind is the kind of TrafficSpec to allow
+	Kind string `json:"kind,omitempty"`
+
+	// Name of the TrafficSpec to use
+	Name string `json:"name,omitempty"`
 
 	// Namespace defines the space within which each name must be unique. An empty namespace is
 	// equivalent to the "default" namespace, but "default" is the canonical representation.
@@ -114,19 +126,19 @@ type TrafficTargetRule struct {
 	Matches []string `json:"matches,omitempty"`
 
 	// Plugins is a list of mounted plugins applied
-	Plugins []MountedPlugin `json:"plugins"`
+	Plugins []MountedPlugin `json:"plugins,omitempty"`
 }
 
 // MountedPlugin is the type used to represent the mounted plugin.
 type MountedPlugin struct {
 	// Namespace defines the namespace of the plugin.
-	Namespace string `json:"namespace"`
+	Namespace string `json:"namespace,omitempty"`
 
 	// Name defines the Name of the plugin.
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// MountPoint defines the mount point of the plugin.
-	MountPoint string `json:"mountpoint"`
+	MountPoint string `json:"mountpoint,omitempty"`
 }
 
 // PluginServiceList defines the list of PluginService objects.

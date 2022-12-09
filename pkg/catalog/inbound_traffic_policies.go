@@ -92,11 +92,9 @@ func (mc *MeshCatalog) GetInboundMeshTrafficPolicy(upstreamIdentity identity.Ser
 				Cluster:             upstreamSvc.SidecarLocalClusterName(),
 			}
 			if pluginSvc != nil {
-				for _, inboundPlugin := range pluginSvc.Spec.Inbound {
-					for _, loopPlugin := range inboundPlugin.Plugins {
-						plugin := loopPlugin
-						trafficMatchForUpstreamSvc.Plugins = append(trafficMatchForUpstreamSvc.Plugins, &plugin)
-					}
+				for _, loopPlugin := range pluginSvc.Spec.Inbound.Plugins {
+					plugin := loopPlugin
+					trafficMatchForUpstreamSvc.Plugins = append(trafficMatchForUpstreamSvc.Plugins, &plugin)
 				}
 			}
 			if upstreamTrafficSetting != nil {
@@ -146,7 +144,7 @@ func (mc *MeshCatalog) getInboundTrafficPoliciesForUpstream(upstreamSvc service.
 			Route:             *trafficpolicy.NewRouteWeightedCluster(trafficpolicy.WildCardRouteMatch, []service.WeightedCluster{localCluster}, upstreamTrafficSetting),
 			AllowedPrincipals: mapset.NewSetWith(identity.WildcardPrincipal),
 		}
-		wildcardRule.Plugins = mc.getInboundRouteRulePlugins(pluginSvc, &trafficpolicy.WildCardRouteMatch)
+		wildcardRule.Plugins = mc.getInboundTargetRoutePlugins(pluginSvc, &trafficpolicy.WildCardRouteMatch)
 		inboundPolicyForUpstreamSvc.Rules = []*trafficpolicy.Rule{&wildcardRule}
 	} else {
 		// Build the HTTP routes from SMI TrafficTarget and HTTPRouteGroup configurations
@@ -156,44 +154,39 @@ func (mc *MeshCatalog) getInboundTrafficPoliciesForUpstream(upstreamSvc service.
 	return inboundPolicyForUpstreamSvc
 }
 
-func (mc *MeshCatalog) getInboundRouteRulePlugins(pluginSvc *pluginv1alpha1.PluginService, routeMatch *trafficpolicy.HTTPRouteMatch) []*pluginv1alpha1.MountedPlugin {
+func (mc *MeshCatalog) getInboundTargetRoutePlugins(pluginSvc *pluginv1alpha1.PluginService, routeMatch *trafficpolicy.HTTPRouteMatch) []*pluginv1alpha1.MountedPlugin {
 	if pluginSvc == nil {
 		return nil
 	}
 	var matchedPlugins []*pluginv1alpha1.MountedPlugin
-	for _, inboundPlugin := range pluginSvc.Spec.Inbound {
+	for _, targetRoute := range pluginSvc.Spec.Inbound.TargetRoutes {
 		matched := false
-		for _, rule := range inboundPlugin.Rules {
-			if rule.Kind == smi.HTTPRouteGroupKind {
-				namespace := rule.Namespace
-				if len(namespace) == 0 {
-					namespace = pluginSvc.Namespace
-				}
-				httpRouteName := fmt.Sprintf("%s/%s", namespace, rule.Name)
-				if httpRouteGroup := mc.meshSpec.GetHTTPRouteGroup(httpRouteName); httpRouteGroup == nil {
-					log.Error().Str(errcode.Kind, errcode.GetErrCodeWithMetric(errcode.ErrSMIHTTPRouteGroupNoMatch)).
-						Msgf("Error fetching HTTPRouteGroup resource %s referenced in PluginService %s/%s", httpRouteName, pluginSvc.Namespace, pluginSvc.Name)
-				} else {
-					var matches []trafficpolicy.HTTPRouteMatch
-					if len(rule.Matches) == 0 {
-						matches = getHTTPRouteMatchesFromHTTPRouteGroup(httpRouteGroup)
-					} else {
-						matches = getHTTPRouteMatchesFromHTTPRouteGroupByNames(httpRouteGroup, rule.Matches)
-					}
-					for _, match := range matches {
-						if reflect.DeepEqual(match, *routeMatch) {
-							matched = true
-							break
-						}
-					}
-				}
+		if targetRoute.Kind == smi.HTTPRouteGroupKind {
+			namespace := targetRoute.Namespace
+			if len(namespace) == 0 {
+				namespace = pluginSvc.Namespace
 			}
-			if matched {
-				break
+			httpRouteName := fmt.Sprintf("%s/%s", namespace, targetRoute.Name)
+			if httpRouteGroup := mc.meshSpec.GetHTTPRouteGroup(httpRouteName); httpRouteGroup == nil {
+				log.Error().Str(errcode.Kind, errcode.GetErrCodeWithMetric(errcode.ErrSMIHTTPRouteGroupNoMatch)).
+					Msgf("Error fetching HTTPRouteGroup resource %s referenced in PluginService %s/%s", httpRouteName, pluginSvc.Namespace, pluginSvc.Name)
+			} else {
+				var matches []trafficpolicy.HTTPRouteMatch
+				if len(targetRoute.Matches) == 0 {
+					matches = getHTTPRouteMatchesFromHTTPRouteGroup(httpRouteGroup)
+				} else {
+					matches = getHTTPRouteMatchesFromHTTPRouteGroupByNames(httpRouteGroup, targetRoute.Matches)
+				}
+				for _, match := range matches {
+					if reflect.DeepEqual(match, *routeMatch) {
+						matched = true
+						break
+					}
+				}
 			}
 		}
 		if matched {
-			for _, loopPlugin := range inboundPlugin.Plugins {
+			for _, loopPlugin := range targetRoute.Plugins {
 				plugin := loopPlugin
 				matchedPlugins = append(matchedPlugins, &plugin)
 			}
@@ -250,7 +243,7 @@ func (mc *MeshCatalog) getRoutingRulesFromTrafficTarget(trafficTarget access.Tra
 			Route:             *trafficpolicy.NewRouteWeightedCluster(httpRouteMatch, []service.WeightedCluster{routingCluster}, upstreamTrafficSetting),
 			AllowedPrincipals: allowedDownstreamPrincipals,
 		}
-		rule.Plugins = mc.getInboundRouteRulePlugins(pluginSvc, &httpRouteMatch)
+		rule.Plugins = mc.getInboundTargetRoutePlugins(pluginSvc, &httpRouteMatch)
 		routingRules = append(routingRules, rule)
 	}
 
