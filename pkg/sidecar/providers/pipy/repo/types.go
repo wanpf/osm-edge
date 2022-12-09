@@ -4,9 +4,8 @@ import (
 	"sync"
 	"time"
 
+	mapset "github.com/deckarep/golang-set"
 	v1 "k8s.io/api/core/v1"
-
-	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
 
 	"github.com/openservicemesh/osm/pkg/apis/policy/v1alpha1"
 	"github.com/openservicemesh/osm/pkg/catalog"
@@ -256,8 +255,8 @@ type WeightedCluster struct {
 // InboundHTTPRouteRule http route rule
 type InboundHTTPRouteRule struct {
 	HTTPRouteRule
-	RateLimit *HTTPPerRouteRateLimit          `json:"RateLimit"`
-	Plugins   []*pluginv1alpha1.MountedPlugin `json:"Plugins"`
+	RateLimit *HTTPPerRouteRateLimit `json:"RateLimit"`
+	Plugins   map[string][]string    `json:"Plugins"`
 }
 
 // InboundHTTPRouteRuleSlice http route rule array
@@ -275,15 +274,15 @@ type InboundHTTPServiceRouteRules map[HTTPRouteRuleName]*InboundHTTPRouteRules
 
 // InboundTrafficMatch represents the match of InboundTraffic
 type InboundTrafficMatch struct {
-	Port                  Port                            `json:"Port"`
-	Protocol              Protocol                        `json:"Protocol"`
-	SourceIPRanges        SourceIPRanges                  `json:"SourceIPRanges"`
-	HTTPHostPort2Service  HTTPHostPort2Service            `json:"HttpHostPort2Service"`
-	HTTPServiceRouteRules InboundHTTPServiceRouteRules    `json:"HttpServiceRouteRules"`
-	TargetClusters        WeightedClusters                `json:"TargetClusters"`
-	AllowedEndpoints      AllowedEndpoints                `json:"AllowedEndpoints"`
-	Plugins               []*pluginv1alpha1.MountedPlugin `json:"Plugins"`
-	RateLimit             *TCPRateLimit                   `json:"RateLimit"`
+	Port                  Port                         `json:"Port"`
+	Protocol              Protocol                     `json:"Protocol"`
+	SourceIPRanges        SourceIPRanges               `json:"SourceIPRanges"`
+	HTTPHostPort2Service  HTTPHostPort2Service         `json:"HttpHostPort2Service"`
+	HTTPServiceRouteRules InboundHTTPServiceRouteRules `json:"HttpServiceRouteRules"`
+	TargetClusters        WeightedClusters             `json:"TargetClusters"`
+	AllowedEndpoints      AllowedEndpoints             `json:"AllowedEndpoints"`
+	Plugins               map[string][]string          `json:"Plugins"`
+	RateLimit             *TCPRateLimit                `json:"RateLimit"`
 }
 
 // InboundTrafficMatches is a wrapper type of map[Port]*InboundTrafficMatch
@@ -308,12 +307,12 @@ type OutboundHTTPServiceRouteRules map[HTTPRouteRuleName]*OutboundHTTPRouteRules
 // OutboundTrafficMatch represents the match of OutboundTraffic
 type OutboundTrafficMatch struct {
 	DestinationIPRanges   DestinationIPRanges
-	Port                  Port                            `json:"Port"`
-	Protocol              Protocol                        `json:"Protocol"`
-	HTTPHostPort2Service  HTTPHostPort2Service            `json:"HttpHostPort2Service"`
-	HTTPServiceRouteRules OutboundHTTPServiceRouteRules   `json:"HttpServiceRouteRules"`
-	TargetClusters        WeightedClusters                `json:"TargetClusters"`
-	Plugins               []*pluginv1alpha1.MountedPlugin `json:"Plugins"`
+	Port                  Port                          `json:"Port"`
+	Protocol              Protocol                      `json:"Protocol"`
+	HTTPHostPort2Service  HTTPHostPort2Service          `json:"HttpHostPort2Service"`
+	HTTPServiceRouteRules OutboundHTTPServiceRouteRules `json:"HttpServiceRouteRules"`
+	TargetClusters        WeightedClusters              `json:"TargetClusters"`
+	Plugins               map[string][]string           `json:"Plugins"`
 	ServiceIdentity       identity.ServiceIdentity
 	AllowedEgressTraffic  bool
 	EgressForwardGateway  *string
@@ -465,22 +464,18 @@ type HTTPConnectionSettings struct {
 	CircuitBreaking *HTTPCircuitBreaking `json:"CircuitBreaking,omitempty"`
 }
 
-// PluginSpec is the spec of plugin
-type PluginSpec struct {
-	Name   string `json:"Path"`
-	Script string
-}
-
 // PipyConf is a policy used by pipy sidecar
 type PipyConf struct {
 	Ts               *time.Time
 	Version          *string
 	Spec             MeshConfigSpec
 	Certificate      *Certificate
-	Inbound          *InboundTrafficPolicy  `json:"Inbound"`
-	Outbound         *OutboundTrafficPolicy `json:"Outbound"`
-	Forward          *ForwardTrafficPolicy  `json:"Forward"`
-	AllowedEndpoints map[string]string      `json:"AllowedEndpoints"`
-	Plugins          []*PluginSpec
+	Inbound          *InboundTrafficPolicy    `json:"Inbound"`
+	Outbound         *OutboundTrafficPolicy   `json:"Outbound"`
+	Forward          *ForwardTrafficPolicy    `json:"Forward"`
+	AllowedEndpoints map[string]string        `json:"AllowedEndpoints"`
 	DNSResolveDB     map[string][]interface{} `json:"DNSResolveDB,omitempty"`
+
+	pluginSet   mapset.Set
+	pluginItems map[string][]byte
 }

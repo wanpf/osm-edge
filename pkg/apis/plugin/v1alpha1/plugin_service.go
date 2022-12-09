@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -131,11 +133,7 @@ type TrafficTargetRoute struct {
 
 // MountedPlugin is the type used to represent the mounted plugin.
 type MountedPlugin struct {
-	// Namespace defines the namespace of the plugin.
-	Namespace string `json:"namespace,omitempty"`
-
-	// Name defines the Name of the plugin.
-	Name string `json:"name,omitempty"`
+	PluginIdentity
 
 	// MountPoint defines the mount point of the plugin.
 	MountPoint string `json:"mountpoint,omitempty"`
@@ -159,4 +157,18 @@ type PluginServiceStatus struct {
 	// Reason defines the reason for the current status of an AccessCert resource.
 	// +optional
 	Reason string `json:"reason,omitempty"`
+}
+
+// PluginIdentity is the type used to represent the plugin identity.
+type PluginIdentity struct {
+	// Namespace defines the namespace of the plugin.
+	Namespace string `json:"namespace,omitempty"`
+
+	// Name defines the Name of the plugin.
+	Name string `json:"name,omitempty"`
+}
+
+// GetPluginURI return the URI of the plugin.
+func (plugin *PluginIdentity) GetPluginURI() string {
+	return fmt.Sprintf("plugins/%s-%s.js", plugin.Namespace, plugin.Name)
 }

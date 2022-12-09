@@ -3,7 +3,10 @@ package repo
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
+
+	mapset "github.com/deckarep/golang-set"
 
 	"github.com/openservicemesh/osm/pkg/catalog"
 	"github.com/openservicemesh/osm/pkg/certificate"
@@ -51,6 +54,8 @@ func (job *PipyConfGeneratorJob) Run() {
 	cataloger := s.catalog
 	pipyConf := new(PipyConf)
 
+	pipyConf.pluginSet = mapset.NewSet()
+
 	probes(proxy, pipyConf)
 	features(s, proxy, pipyConf)
 	certs(s, proxy, pipyConf)
@@ -61,8 +66,8 @@ func (job *PipyConfGeneratorJob) Run() {
 	balance(pipyConf)
 	reorder(pipyConf)
 	endpoints(pipyConf, s)
-	curItems := plugins(cataloger, proxyServices, pipyConf)
-	job.publishSidecarConf(s.repoClient, proxy, pipyConf, curItems)
+	plugins(cataloger, proxyServices, pipyConf)
+	job.publishSidecarConf(s.repoClient, proxy, pipyConf)
 }
 
 func endpoints(pipyConf *PipyConf, s *Server) {
@@ -267,28 +272,24 @@ func probes(proxy *pipy.Proxy, pipyConf *PipyConf) {
 	}
 }
 
-func plugins(cataloger catalog.MeshCataloger, proxyServices []service.MeshService, pipyConf *PipyConf) map[string][]byte {
-	pluginItems := make(map[string][]byte)
-	pipyConf.Plugins = nil
+func plugins(cataloger catalog.MeshCataloger, proxyServices []service.MeshService, pipyConf *PipyConf) {
+	pipyConf.pluginItems = make(map[string][]byte)
 	if len(proxyServices) > 0 {
-		pipyConf.Plugins = make([]*PluginSpec, 0)
 		for _, svc := range proxyServices {
 			if pluginPolicies, pluginErr := cataloger.GetPluginPolicies(svc); pluginErr == nil {
 				for _, plugin := range pluginPolicies {
-					pluginSpec := new(PluginSpec)
-					pluginSpec.Name = fmt.Sprintf("plugins/%s-%s.js", plugin.Namespace, plugin.Name)
-					pluginSpec.Script = plugin.Script
-					pluginItems[pluginSpec.Name] = []byte(pluginSpec.Script)
-					pipyConf.Plugins = append(pipyConf.Plugins, pluginSpec)
+					pluginURI := plugin.GetPluginURI()
+					if pipyConf.pluginSet.Contains(pluginURI) {
+						pipyConf.pluginItems[pluginURI] = []byte(plugin.Script)
+					}
 				}
 			}
 		}
 	}
-	return pluginItems
 }
 
 func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoClient,
-	proxy *pipy.Proxy, pipyConf *PipyConf, curItems map[string][]byte) {
+	proxy *pipy.Proxy, pipyConf *PipyConf) {
 	pipyConf.Ts = nil
 	pipyConf.Version = nil
 	pipyConf.Certificate = nil
@@ -300,8 +301,18 @@ func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoC
 	bytes, jsonErr := json.Marshal(pipyConf)
 
 	if jsonErr == nil {
-		for _, content := range curItems {
-			bytes = append(bytes, content...)
+		var pluginNames []string
+		if pluginSlice := pipyConf.pluginSet.ToSlice(); len(pluginSlice) > 0 {
+			for _, plugin := range pluginSlice {
+				pluginName := plugin.(string)
+				pluginNames = append(pluginNames, pluginName)
+			}
+			sort.Strings(pluginNames)
+			for _, pluginName := range pluginNames {
+				if content, exist := pipyConf.pluginItems[pluginName]; exist {
+					bytes = append(bytes, content...)
+				}
+			}
 		}
 
 		codebasePreV := proxy.ETag
@@ -327,25 +338,23 @@ func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoC
 						Content:  bytes,
 					},
 				}
-				for name, content := range curItems {
-					codebaseItems = append(codebaseItems, client.BatchItem{
-						Filename: name,
-						Content:  content,
-					})
-				}
-				if proxy.PlugInItems != nil {
-					for name, content := range proxy.PlugInItems {
-						obsolete := true
-						if curItems != nil {
-							if _, exists := curItems[name]; exists {
-								obsolete = false
-							}
-						}
+				for _, pluginName := range pluginNames {
+					if content, exist := pipyConf.pluginItems[pluginName]; exist {
 						codebaseItems = append(codebaseItems, client.BatchItem{
-							Filename: name,
+							Filename: pluginName,
 							Content:  content,
-							Obsolete: obsolete,
 						})
+					}
+				}
+				if proxy.PluginSet != nil {
+					prePluginNames := proxy.PluginSet.ToSlice()
+					for _, prePluginName := range prePluginNames {
+						if !pipyConf.pluginSet.Contains(prePluginName) {
+							codebaseItems = append(codebaseItems, client.BatchItem{
+								Filename: prePluginName.(string),
+								Obsolete: true,
+							})
+						}
 					}
 				}
 				if _, err = repoClient.Batch(fmt.Sprintf("%d", codebaseCurV), []client.Batch{
@@ -354,7 +363,7 @@ func (job *PipyConfGeneratorJob) publishSidecarConf(repoClient *client.PipyRepoC
 						Items:    codebaseItems,
 					},
 				}); err == nil {
-					proxy.PlugInItems = curItems
+					proxy.PluginSet = pipyConf.pluginSet
 				}
 			}
 			if err != nil {

@@ -240,8 +240,19 @@ func (itm *InboundTrafficMatch) setTCPServiceRateLimit(rateLimit *policyv1alpha1
 	}
 }
 
-func (itm *InboundTrafficMatch) setPlugins(plugins []*pluginv1alpha1.MountedPlugin) {
-	itm.Plugins = plugins
+func (itm *InboundTrafficMatch) setPlugins(pipyConf *PipyConf, plugins []*pluginv1alpha1.MountedPlugin) {
+	for _, plugin := range plugins {
+		pluginURI := plugin.GetPluginURI()
+		if !pipyConf.pluginSet.Contains(pluginURI) {
+			pipyConf.pluginSet.Add(pluginURI)
+		}
+		pluginSet, exist := itm.Plugins[plugin.MountPoint]
+		if !exist {
+			pluginSet = make([]string, 0)
+		}
+		pluginSet = append(pluginSet, pluginURI)
+		itm.Plugins[plugin.MountPoint] = pluginSet
+	}
 }
 
 func (otm *OutboundTrafficMatch) addDestinationIPRange(ipRange DestinationIPRange, destinationSpec *DestinationSecuritySpec) {
@@ -253,8 +264,19 @@ func (otm *OutboundTrafficMatch) addDestinationIPRange(ipRange DestinationIPRang
 	}
 }
 
-func (otm *OutboundTrafficMatch) setPlugins(mountedPlugins []*pluginv1alpha1.MountedPlugin) {
-	otm.Plugins = mountedPlugins
+func (otm *OutboundTrafficMatch) setPlugins(pipyConf *PipyConf, plugins []*pluginv1alpha1.MountedPlugin) {
+	for _, plugin := range plugins {
+		pluginURI := plugin.GetPluginURI()
+		if !pipyConf.pluginSet.Contains(pluginURI) {
+			pipyConf.pluginSet.Add(pluginURI)
+		}
+		pluginSet, exist := otm.Plugins[plugin.MountPoint]
+		if !exist {
+			pluginSet = make([]string, 0)
+		}
+		pluginSet = append(pluginSet, pluginURI)
+		otm.Plugins[plugin.MountPoint] = pluginSet
+	}
 }
 
 func (otm *OutboundTrafficMatch) setServiceIdentity(serviceIdentity identity.ServiceIdentity) {
@@ -484,8 +506,19 @@ func (hrr *HTTPRouteRule) addAllowedService(serviceName ServiceName) {
 	}
 }
 
-func (ihrr *InboundHTTPRouteRule) setPlugins(plugins []*pluginv1alpha1.MountedPlugin) {
-	ihrr.Plugins = append(ihrr.Plugins, plugins...)
+func (ihrr *InboundHTTPRouteRule) setPlugins(pipyConf *PipyConf, plugins []*pluginv1alpha1.MountedPlugin) {
+	for _, plugin := range plugins {
+		pluginURI := plugin.GetPluginURI()
+		if !pipyConf.pluginSet.Contains(pluginURI) {
+			pipyConf.pluginSet.Add(pluginURI)
+		}
+		pluginSet, exist := ihrr.Plugins[plugin.MountPoint]
+		if !exist {
+			pluginSet = make([]string, 0)
+		}
+		pluginSet = append(pluginSet, pluginURI)
+		ihrr.Plugins[plugin.MountPoint] = pluginSet
+	}
 }
 
 func (ihrr *InboundHTTPRouteRule) setRateLimit(rateLimit *policyv1alpha1.HTTPPerRouteRateLimitSpec) {

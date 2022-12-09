@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	mapset "github.com/deckarep/golang-set"
 	"github.com/google/uuid"
 	v1 "k8s.io/api/core/v1"
 
@@ -46,7 +47,7 @@ type Proxy struct {
 	// The version of Pipy Repo Codebase
 	ETag uint64
 
-	PlugInItems map[string][]byte
+	PluginSet mapset.Set
 
 	Mutex *sync.RWMutex
 	Quit  chan bool

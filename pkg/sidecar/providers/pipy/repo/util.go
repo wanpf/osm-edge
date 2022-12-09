@@ -33,7 +33,7 @@ func generatePipyInboundTrafficPolicy(meshCatalog catalog.MeshCataloger, _ ident
 		tm.setProtocol(Protocol(destinationProtocol))
 		tm.setPort(Port(trafficMatch.DestinationPort))
 		tm.setTCPServiceRateLimit(trafficMatch.RateLimit)
-		tm.setPlugins(trafficMatch.Plugins)
+		tm.setPlugins(pipyConf, trafficMatch.Plugins)
 
 		if destinationProtocol == constants.ProtocolHTTP ||
 			trafficMatch.DestinationProtocol == constants.ProtocolGRPC {
@@ -81,7 +81,7 @@ func generatePipyInboundTrafficPolicy(meshCatalog catalog.MeshCataloger, _ ident
 
 				hsrr, duplicate := hsrrs.newHTTPServiceRouteRule(httpMatch)
 				if !duplicate {
-					hsrr.setPlugins(rule.Plugins)
+					hsrr.setPlugins(pipyConf, rule.Plugins)
 					hsrr.setRateLimit(rule.Route.RateLimit)
 					for routeCluster := range rule.Route.WeightedClusters.Iter() {
 						weightedCluster := routeCluster.(service.WeightedCluster)
@@ -135,7 +135,7 @@ func generatePipyOutboundTrafficRoutePolicy(_ catalog.MeshCataloger, proxyIdenti
 			tm.setProtocol(Protocol(destinationProtocol))
 			tm.setPort(Port(trafficMatch.DestinationPort))
 			tm.setServiceIdentity(proxyIdentity)
-			tm.setPlugins(trafficMatch.Plugins)
+			tm.setPlugins(pipyConf, trafficMatch.Plugins)
 		}
 
 		for _, ipRange := range trafficMatch.DestinationIPRanges {

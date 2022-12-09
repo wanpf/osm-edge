@@ -1,12 +1,10 @@
 package trafficpolicy
 
+import pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
+
 // PluginPolicy defines plugins for a given backend
 type PluginPolicy struct {
-	// Namespace defines namespace of the plugin
-	Namespace string
-
-	// Name defines Name of the plugin
-	Name string
+	pluginv1alpha1.PluginIdentity
 
 	// Script defines pipy script used by the PlugIn.
 	Script string
