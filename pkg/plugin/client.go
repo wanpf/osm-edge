@@ -86,13 +86,3 @@ func (c *Client) GetPluginChains() []*pluginv1alpha1.PluginChain {
 	}
 	return pluginChains
 }
-
-// GetPluginServices lists plugin services
-func (c *Client) GetPluginServices() []*pluginv1alpha1.PluginService {
-	var pluginServices []*pluginv1alpha1.PluginService
-	for _, pluginServiceIface := range c.informers.List(informers.InformerKeyPluginService) {
-		pluginService := pluginServiceIface.(*pluginv1alpha1.PluginService)
-		pluginServices = append(pluginServices, pluginService)
-	}
-	return pluginServices
-}
