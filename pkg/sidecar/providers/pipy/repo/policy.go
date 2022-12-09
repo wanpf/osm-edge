@@ -241,6 +241,9 @@ func (itm *InboundTrafficMatch) setTCPServiceRateLimit(rateLimit *policyv1alpha1
 }
 
 func (itm *InboundTrafficMatch) setPlugins(pipyConf *PipyConf, plugins []*pluginv1alpha1.MountedPlugin) {
+	if len(plugins) == 0 {
+		return
+	}
 	if itm.Plugins == nil {
 		itm.Plugins = make(map[string][]string)
 	}
@@ -268,6 +271,9 @@ func (otm *OutboundTrafficMatch) addDestinationIPRange(ipRange DestinationIPRang
 }
 
 func (otm *OutboundTrafficMatch) setPlugins(pipyConf *PipyConf, plugins []*pluginv1alpha1.MountedPlugin) {
+	if len(plugins) == 0 {
+		return
+	}
 	if otm.Plugins == nil {
 		otm.Plugins = make(map[string][]string)
 	}
@@ -513,6 +519,9 @@ func (hrr *HTTPRouteRule) addAllowedService(serviceName ServiceName) {
 }
 
 func (ihrr *InboundHTTPRouteRule) setPlugins(pipyConf *PipyConf, plugins []*pluginv1alpha1.MountedPlugin) {
+	if len(plugins) == 0 {
+		return
+	}
 	if ihrr.Plugins == nil {
 		ihrr.Plugins = make(map[string][]string)
 	}
