@@ -20,7 +20,7 @@ func NewResponse(meshCatalog catalog.MeshCataloger, proxy *envoy.Proxy, _ *xds_d
 	var clusters []*xds_cluster.Cluster
 
 	// Build upstream clusters based on allowed outbound traffic policies
-	outboundMeshTrafficPolicy := meshCatalog.GetOutboundMeshTrafficPolicy(proxy.Identity)
+	outboundMeshTrafficPolicy := meshCatalog.GetOutboundMeshTrafficPolicy(proxy.Identity, nil)
 	if outboundMeshTrafficPolicy != nil {
 		clusters = append(clusters, upstreamClustersFromClusterConfigs(proxy.Identity, outboundMeshTrafficPolicy.ClustersConfigs, cfg.GetMeshConfig().Spec.Sidecar)...)
 	}

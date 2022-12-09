@@ -55,7 +55,7 @@ func (job *PipyConfGeneratorJob) Run() {
 	features(s, proxy, pipyConf)
 	certs(s, proxy, pipyConf)
 	inbound(cataloger, proxy.Identity, proxyServices, pipyConf, s.certManager.GetTrustDomain())
-	outbound(cataloger, proxy.Identity, pipyConf, proxy, s)
+	outbound(cataloger, proxy.Identity, proxyServices, pipyConf, proxy, s)
 	egress(cataloger, proxy.Identity, s, pipyConf, proxy)
 	forward(cataloger, proxy.Identity, s, pipyConf, proxy)
 	balance(pipyConf)
@@ -145,8 +145,8 @@ func forward(cataloger catalog.MeshCataloger, serviceIdentity identity.ServiceId
 	return true
 }
 
-func outbound(cataloger catalog.MeshCataloger, serviceIdentity identity.ServiceIdentity, pipyConf *PipyConf, proxy *pipy.Proxy, s *Server) bool {
-	outboundTrafficPolicy := cataloger.GetOutboundMeshTrafficPolicy(serviceIdentity)
+func outbound(cataloger catalog.MeshCataloger, serviceIdentity identity.ServiceIdentity, proxyServices []service.MeshService, pipyConf *PipyConf, proxy *pipy.Proxy, s *Server) bool {
+	outboundTrafficPolicy := cataloger.GetOutboundMeshTrafficPolicy(serviceIdentity, proxyServices)
 	if len(outboundTrafficPolicy.ServicesResolvableSet) > 0 {
 		pipyConf.DNSResolveDB = outboundTrafficPolicy.ServicesResolvableSet
 	}

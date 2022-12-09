@@ -253,6 +253,10 @@ func (otm *OutboundTrafficMatch) addDestinationIPRange(ipRange DestinationIPRang
 	}
 }
 
+func (otm *OutboundTrafficMatch) setPlugins(mountedPlugins []*pluginv1alpha1.MountedPlugin) {
+	otm.Plugins = mountedPlugins
+}
+
 func (otm *OutboundTrafficMatch) setServiceIdentity(serviceIdentity identity.ServiceIdentity) {
 	otm.ServiceIdentity = serviceIdentity
 }

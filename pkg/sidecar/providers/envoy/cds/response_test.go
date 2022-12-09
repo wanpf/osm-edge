@@ -94,7 +94,7 @@ func TestNewResponse(t *testing.T) {
 	}
 
 	mockCatalog.EXPECT().GetInboundMeshTrafficPolicy(gomock.Any(), gomock.Any()).Return(expectedInboundMeshPolicy).AnyTimes()
-	mockCatalog.EXPECT().GetOutboundMeshTrafficPolicy(tests.BookbuyerServiceIdentity).Return(expectedOutboundMeshPolicy).AnyTimes()
+	mockCatalog.EXPECT().GetOutboundMeshTrafficPolicy(tests.BookbuyerServiceIdentity, gomock.Any()).Return(expectedOutboundMeshPolicy).AnyTimes()
 	mockCatalog.EXPECT().GetEgressTrafficPolicy(tests.BookbuyerServiceIdentity).Return(nil, nil).AnyTimes()
 	mockConfigurator.EXPECT().IsPermissiveTrafficPolicyMode().Return(false).AnyTimes()
 	mockConfigurator.EXPECT().IsEgressEnabled().Return(true).AnyTimes()
@@ -419,7 +419,7 @@ func TestNewResponseListServicesError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	meshCatalog := catalog.NewMockMeshCataloger(ctrl)
 	cfg := configurator.NewMockConfigurator(ctrl)
-	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(proxy.Identity).Return(nil).AnyTimes()
+	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(proxy.Identity, gomock.Any()).Return(nil).AnyTimes()
 	cfg.EXPECT().IsPermissiveTrafficPolicyMode().Return(false).AnyTimes()
 
 	resp, err := NewResponse(meshCatalog, proxy, nil, cfg, nil, proxyRegistry)
@@ -442,7 +442,7 @@ func TestNewResponseGetEgressTrafficPolicyError(t *testing.T) {
 	cfg := configurator.NewMockConfigurator(ctrl)
 
 	meshCatalog.EXPECT().GetInboundMeshTrafficPolicy(gomock.Any(), gomock.Any()).Return(nil).Times(1)
-	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(proxyIdentity).Return(nil).Times(1)
+	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(proxyIdentity, gomock.Any()).Return(nil).Times(1)
 	meshCatalog.EXPECT().GetEgressTrafficPolicy(proxyIdentity).Return(nil, fmt.Errorf("some error")).Times(1)
 	meshCatalog.EXPECT().GetKubeController().Return(mockKubeController).AnyTimes()
 	cfg.EXPECT().IsEgressEnabled().Return(false).Times(1)
@@ -473,7 +473,7 @@ func TestNewResponseGetEgressTrafficPolicyNotEmpty(t *testing.T) {
 	mockKubeController := k8s.NewMockController(ctrl)
 	cfg := configurator.NewMockConfigurator(ctrl)
 	meshCatalog.EXPECT().GetInboundMeshTrafficPolicy(gomock.Any(), gomock.Any()).Return(nil).Times(1)
-	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(proxyIdentity).Return(nil).Times(1)
+	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(proxyIdentity, gomock.Any()).Return(nil).Times(1)
 	meshCatalog.EXPECT().GetKubeController().Return(mockKubeController).AnyTimes()
 	meshCatalog.EXPECT().GetEgressTrafficPolicy(proxyIdentity).Return(&trafficpolicy.EgressTrafficPolicy{
 		ClustersConfigs: []*trafficpolicy.EgressClusterConfig{

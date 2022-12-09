@@ -176,7 +176,7 @@ func TestNewOutboundListener(t *testing.T) {
 	identity := identity.K8sServiceAccount{}.ToServiceIdentity()
 	meshCatalog := catalog.NewMockMeshCataloger(mockCtrl)
 	meshCatalog.EXPECT().GetEgressTrafficPolicy(gomock.Any()).Return(nil, nil).Times(1)
-	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(identity).Return(&trafficpolicy.OutboundMeshTrafficPolicy{
+	meshCatalog.EXPECT().GetOutboundMeshTrafficPolicy(identity, gomock.Any()).Return(&trafficpolicy.OutboundMeshTrafficPolicy{
 		TrafficMatches: []*trafficpolicy.TrafficMatch{
 			{
 				WeightedClusters: []service.WeightedCluster{{}},

@@ -135,6 +135,7 @@ func generatePipyOutboundTrafficRoutePolicy(_ catalog.MeshCataloger, proxyIdenti
 			tm.setProtocol(Protocol(destinationProtocol))
 			tm.setPort(Port(trafficMatch.DestinationPort))
 			tm.setServiceIdentity(proxyIdentity)
+			tm.setPlugins(trafficMatch.Plugins)
 		}
 
 		for _, ipRange := range trafficMatch.DestinationIPRanges {

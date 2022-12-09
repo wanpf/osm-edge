@@ -456,7 +456,7 @@ func (lb *listenerBuilder) getOutboundTCPFilter(trafficMatch trafficpolicy.Traff
 func (lb *listenerBuilder) getOutboundFilterChainPerUpstream() []*xds_listener.FilterChain {
 	var filterChains []*xds_listener.FilterChain
 
-	outboundMeshTrafficPolicy := lb.meshCatalog.GetOutboundMeshTrafficPolicy(lb.serviceIdentity)
+	outboundMeshTrafficPolicy := lb.meshCatalog.GetOutboundMeshTrafficPolicy(lb.serviceIdentity, nil)
 	if outboundMeshTrafficPolicy == nil {
 		// no outbound mesh traffic policies
 		return nil

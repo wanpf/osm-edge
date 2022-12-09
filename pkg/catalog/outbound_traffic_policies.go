@@ -5,6 +5,8 @@ import (
 	split "github.com/servicemeshinterface/smi-sdk-go/pkg/apis/split/v1alpha4"
 	"k8s.io/apimachinery/pkg/types"
 
+	pluginv1alpha1 "github.com/openservicemesh/osm/pkg/apis/plugin/v1alpha1"
+
 	"github.com/openservicemesh/osm/pkg/constants"
 	"github.com/openservicemesh/osm/pkg/errcode"
 	"github.com/openservicemesh/osm/pkg/identity"
@@ -28,7 +30,7 @@ import (
 // The route configurations are consolidated per port, such that upstream services using the same port are a part
 // of the same route configuration. This is required to avoid route conflicts that can occur when the same hostname
 // needs to be routed differently based on the port used.
-func (mc *MeshCatalog) GetOutboundMeshTrafficPolicy(downstreamIdentity identity.ServiceIdentity) *trafficpolicy.OutboundMeshTrafficPolicy {
+func (mc *MeshCatalog) GetOutboundMeshTrafficPolicy(downstreamIdentity identity.ServiceIdentity, downstreamServices []service.MeshService) *trafficpolicy.OutboundMeshTrafficPolicy {
 	var trafficMatches []*trafficpolicy.TrafficMatch
 	var clusterConfigs []*trafficpolicy.MeshClusterConfig
 	routeConfigPerPort := make(map[int][]*trafficpolicy.OutboundTrafficPolicy)
@@ -38,6 +40,8 @@ func (mc *MeshCatalog) GetOutboundMeshTrafficPolicy(downstreamIdentity identity.
 	var egressPolicy *trafficpolicy.EgressTrafficPolicy
 	var egressPolicyGetted bool
 	var egressEnabled bool
+
+	pluginServices := mc.getDownstreamPluginServices(downstreamServices)
 
 	// For each service, build the traffic policies required to access it.
 	// It is important to aggregate HTTP route configs by the service's port.
@@ -128,6 +132,7 @@ func (mc *MeshCatalog) GetOutboundMeshTrafficPolicy(downstreamIdentity identity.
 				DestinationIPRanges: destinationIPRanges,
 				WeightedClusters:    routeMatch.UpstreamClusters,
 			}
+			mc.setOutboundTrafficMatchPlugins(pluginServices, trafficMatchForServicePort, meshSvc)
 			trafficMatches = append(trafficMatches, trafficMatchForServicePort)
 			log.Trace().Msgf("Built traffic match %s for downstream %s", trafficMatchForServicePort.Name, downstreamIdentity)
 		}
@@ -173,6 +178,37 @@ func (mc *MeshCatalog) GetOutboundMeshTrafficPolicy(downstreamIdentity identity.
 		HTTPRouteConfigsPerPort: routeConfigPerPort,
 		ServicesResolvableSet:   servicesResolvableSet,
 	}
+}
+
+func (mc *MeshCatalog) setOutboundTrafficMatchPlugins(pluginServices []*pluginv1alpha1.PluginService, trafficMatchForServicePort *trafficpolicy.TrafficMatch, meshSvc service.MeshService) {
+	for _, pluginSvc := range pluginServices {
+		for _, plugin := range pluginSvc.Spec.Outbound.Plugins {
+			plugin := plugin
+			trafficMatchForServicePort.Plugins = append(trafficMatchForServicePort.Plugins, &plugin)
+		}
+		for _, targetSvc := range pluginSvc.Spec.Outbound.TargetServices {
+			if targetSvc.Name == meshSvc.Name && targetSvc.Namespace == meshSvc.Namespace {
+				for _, plugin := range targetSvc.Plugins {
+					plugin := plugin
+					trafficMatchForServicePort.Plugins = append(trafficMatchForServicePort.Plugins, &plugin)
+				}
+			}
+		}
+	}
+}
+
+func (mc *MeshCatalog) getDownstreamPluginServices(downstreamServices []service.MeshService) []*pluginv1alpha1.PluginService {
+	var pluginServices []*pluginv1alpha1.PluginService
+	// A policy (traffic match, route, cluster) must be built for each upstream service. This
+	// includes apex/root services associated with the given upstream service.
+	allDownstreamServices := mc.getUpstreamServicesIncludeApex(downstreamServices)
+	for _, downstreamSvc := range allDownstreamServices {
+		downstreamSvc := downstreamSvc
+		if pluginSvc := mc.pluginController.GetPluginService(downstreamSvc); pluginSvc != nil {
+			pluginServices = append(pluginServices, pluginSvc)
+		}
+	}
+	return pluginServices
 }
 
 func (mc *MeshCatalog) getWildCardRouteUpstreamClusters(hasTrafficSplitWildCard bool, routeMatches []*trafficpolicy.HTTPRouteMatchWithWeightedClusters) []service.WeightedCluster {

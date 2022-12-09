@@ -77,7 +77,7 @@ func (lb *listenerBuilder) newOutboundListener() (*xds_listener.Listener, error)
 			listener.FilterChains = append(listener.FilterChains, egressFilterChains...)
 			trafficMatches = append(trafficMatches, egressTrafficPolicy.TrafficMatches...)
 		}
-		trafficMatches = append(trafficMatches, lb.meshCatalog.GetOutboundMeshTrafficPolicy(lb.serviceIdentity).TrafficMatches...)
+		trafficMatches = append(trafficMatches, lb.meshCatalog.GetOutboundMeshTrafficPolicy(lb.serviceIdentity, nil).TrafficMatches...)
 		filterDisableMatchPredicate = getFilterMatchPredicateForTrafficMatches(trafficMatches)
 		additionalListenerFilters := []*xds_listener.ListenerFilter{
 			// Configure match predicate for ports serving server-first protocols (ex. mySQL, postgreSQL etc.).

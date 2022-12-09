@@ -160,17 +160,17 @@ func (mr *MockMeshCatalogerMockRecorder) GetKubeController() *gomock.Call {
 }
 
 // GetOutboundMeshTrafficPolicy mocks base method.
-func (m *MockMeshCataloger) GetOutboundMeshTrafficPolicy(arg0 identity.ServiceIdentity) *trafficpolicy.OutboundMeshTrafficPolicy {
+func (m *MockMeshCataloger) GetOutboundMeshTrafficPolicy(arg0 identity.ServiceIdentity, arg1 []service.MeshService) *trafficpolicy.OutboundMeshTrafficPolicy {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOutboundMeshTrafficPolicy", arg0)
+	ret := m.ctrl.Call(m, "GetOutboundMeshTrafficPolicy", arg0, arg1)
 	ret0, _ := ret[0].(*trafficpolicy.OutboundMeshTrafficPolicy)
 	return ret0
 }
 
 // GetOutboundMeshTrafficPolicy indicates an expected call of GetOutboundMeshTrafficPolicy.
-func (mr *MockMeshCatalogerMockRecorder) GetOutboundMeshTrafficPolicy(arg0 interface{}) *gomock.Call {
+func (mr *MockMeshCatalogerMockRecorder) GetOutboundMeshTrafficPolicy(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutboundMeshTrafficPolicy", reflect.TypeOf((*MockMeshCataloger)(nil).GetOutboundMeshTrafficPolicy), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutboundMeshTrafficPolicy", reflect.TypeOf((*MockMeshCataloger)(nil).GetOutboundMeshTrafficPolicy), arg0, arg1)
 }
 
 // GetPluginChains mocks base method.

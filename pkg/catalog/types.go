@@ -94,7 +94,7 @@ type MeshCataloger interface {
 	GetKubeController() k8s.Controller
 
 	// GetOutboundMeshTrafficPolicy returns the outbound mesh traffic policy for the given downstream identity
-	GetOutboundMeshTrafficPolicy(identity.ServiceIdentity) *trafficpolicy.OutboundMeshTrafficPolicy
+	GetOutboundMeshTrafficPolicy(identity.ServiceIdentity, []service.MeshService) *trafficpolicy.OutboundMeshTrafficPolicy
 
 	// GetInboundMeshTrafficPolicy returns the inbound mesh traffic policy for the given upstream identity and services
 	GetInboundMeshTrafficPolicy(identity.ServiceIdentity, []service.MeshService) *trafficpolicy.InboundMeshTrafficPolicy

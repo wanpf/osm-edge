@@ -249,7 +249,7 @@ func TestRDSRespose(t *testing.T) {
 			expectedInboundMeshPolicy := &trafficpolicy.InboundMeshTrafficPolicy{HTTPRouteConfigsPerPort: map[int][]*trafficpolicy.InboundTrafficPolicy{inboundTestPort: tc.expectedInboundPolicies}}
 			expectedOutboundMeshPolicy := &trafficpolicy.OutboundMeshTrafficPolicy{HTTPRouteConfigsPerPort: map[int][]*trafficpolicy.OutboundTrafficPolicy{outboundTestPort: tc.expectedOutboundPolicies}}
 			mockCatalog.EXPECT().GetInboundMeshTrafficPolicy(gomock.Any(), gomock.Any()).Return(expectedInboundMeshPolicy).AnyTimes()
-			mockCatalog.EXPECT().GetOutboundMeshTrafficPolicy(gomock.Any()).Return(expectedOutboundMeshPolicy).AnyTimes()
+			mockCatalog.EXPECT().GetOutboundMeshTrafficPolicy(gomock.Any(), gomock.Any()).Return(expectedOutboundMeshPolicy).AnyTimes()
 			mockCatalog.EXPECT().GetIngressTrafficPolicy(gomock.Any()).Return(nil, nil).AnyTimes()
 			mockCatalog.EXPECT().GetEgressTrafficPolicy(gomock.Any()).Return(nil, nil).AnyTimes()
 

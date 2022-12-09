@@ -92,8 +92,8 @@ func (mc *MeshCatalog) GetInboundMeshTrafficPolicy(upstreamIdentity identity.Ser
 				Cluster:             upstreamSvc.SidecarLocalClusterName(),
 			}
 			if pluginSvc != nil {
-				for _, loopPlugin := range pluginSvc.Spec.Inbound.Plugins {
-					plugin := loopPlugin
+				for _, plugin := range pluginSvc.Spec.Inbound.Plugins {
+					plugin := plugin
 					trafficMatchForUpstreamSvc.Plugins = append(trafficMatchForUpstreamSvc.Plugins, &plugin)
 				}
 			}
@@ -186,8 +186,8 @@ func (mc *MeshCatalog) getInboundTargetRoutePlugins(pluginSvc *pluginv1alpha1.Pl
 			}
 		}
 		if matched {
-			for _, loopPlugin := range targetRoute.Plugins {
-				plugin := loopPlugin
+			for _, plugin := range targetRoute.Plugins {
+				plugin := plugin
 				matchedPlugins = append(matchedPlugins, &plugin)
 			}
 		}
@@ -237,8 +237,8 @@ func (mc *MeshCatalog) getRoutingRulesFromTrafficTarget(trafficTarget access.Tra
 	}
 
 	var routingRules []*trafficpolicy.Rule
-	for _, loopHTTPRouteMatch := range httpRouteMatches {
-		httpRouteMatch := loopHTTPRouteMatch
+	for _, httpRouteMatch := range httpRouteMatches {
+		httpRouteMatch := httpRouteMatch
 		rule := &trafficpolicy.Rule{
 			Route:             *trafficpolicy.NewRouteWeightedCluster(httpRouteMatch, []service.WeightedCluster{routingCluster}, upstreamTrafficSetting),
 			AllowedPrincipals: allowedDownstreamPrincipals,

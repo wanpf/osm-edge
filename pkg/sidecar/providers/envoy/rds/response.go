@@ -45,7 +45,7 @@ func NewResponse(cataloger catalog.MeshCataloger, proxy *envoy.Proxy, discoveryR
 	// Build outbound mesh route configurations. These route configurations allow this proxy
 	// to direct traffic to upstream services that it is authorized to connect to on allowed
 	// routes.
-	outboundMeshTrafficPolicy := cataloger.GetOutboundMeshTrafficPolicy(proxy.Identity)
+	outboundMeshTrafficPolicy := cataloger.GetOutboundMeshTrafficPolicy(proxy.Identity, nil)
 
 	if outboundMeshTrafficPolicy != nil {
 		outboundMeshRouteConfig := route.BuildOutboundMeshRouteConfiguration(outboundMeshTrafficPolicy.HTTPRouteConfigsPerPort)

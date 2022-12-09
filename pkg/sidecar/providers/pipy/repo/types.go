@@ -308,11 +308,12 @@ type OutboundHTTPServiceRouteRules map[HTTPRouteRuleName]*OutboundHTTPRouteRules
 // OutboundTrafficMatch represents the match of OutboundTraffic
 type OutboundTrafficMatch struct {
 	DestinationIPRanges   DestinationIPRanges
-	Port                  Port                          `json:"Port"`
-	Protocol              Protocol                      `json:"Protocol"`
-	HTTPHostPort2Service  HTTPHostPort2Service          `json:"HttpHostPort2Service"`
-	HTTPServiceRouteRules OutboundHTTPServiceRouteRules `json:"HttpServiceRouteRules"`
-	TargetClusters        WeightedClusters              `json:"TargetClusters"`
+	Port                  Port                            `json:"Port"`
+	Protocol              Protocol                        `json:"Protocol"`
+	HTTPHostPort2Service  HTTPHostPort2Service            `json:"HttpHostPort2Service"`
+	HTTPServiceRouteRules OutboundHTTPServiceRouteRules   `json:"HttpServiceRouteRules"`
+	TargetClusters        WeightedClusters                `json:"TargetClusters"`
+	Plugins               []*pluginv1alpha1.MountedPlugin `json:"Plugins"`
 	ServiceIdentity       identity.ServiceIdentity
 	AllowedEgressTraffic  bool
 	EgressForwardGateway  *string
