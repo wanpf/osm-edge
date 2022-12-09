@@ -51,70 +51,78 @@ type OutboundChains struct {
 	OutboundL7Chains OutboundL7Chains `json:"L7"`
 }
 
+// ChainPlugin is the type used to represent the chain plugin.
+type ChainPlugin struct {
+	PluginIdentity
+
+	// Type defines the type of the plugin.
+	Type string `json:"type"`
+}
+
 // InboundL4Chains is the type used to represent inbound L4 chains.
 type InboundL4Chains struct {
 	// TCPFirst defines TCPFirst sub-chains.
-	TCPFirst []string `json:"TCPFirst"`
+	TCPFirst []ChainPlugin `json:"TCPFirst"`
 
 	// TCPAfterTLS defines TCPAfterTLS sub-chains.
-	TCPAfterTLS []string `json:"TCPAfterTLS"`
+	TCPAfterTLS []ChainPlugin `json:"TCPAfterTLS"`
 
 	// TCPAfterRouting defines TCPAfterRouting sub-chains.
-	TCPAfterRouting []string `json:"TCPAfterRouting"`
+	TCPAfterRouting []ChainPlugin `json:"TCPAfterRouting"`
 
 	// TCPLast defines TCPLast sub-chains.
-	TCPLast []string `json:"TCPLast"`
+	TCPLast []ChainPlugin `json:"TCPLast"`
 }
 
 // InboundL7Chains is the type used to represent inbound L7 chains.
 type InboundL7Chains struct {
 	// HTTPFirst defines HTTPFirst sub-chains.
-	HTTPFirst []string `json:"HTTPFirst"`
+	HTTPFirst []ChainPlugin `json:"HTTPFirst"`
 
 	// HTTPAfterTLS defines HTTPAfterTLS sub-chains.
-	HTTPAfterTLS []string `json:"HTTPAfterTLS"`
+	HTTPAfterTLS []ChainPlugin `json:"HTTPAfterTLS"`
 
 	// HTTPAfterDemux defines HTTPAfterDemux sub-chains.
-	HTTPAfterDemux []string `json:"HTTPAfterDemux"`
+	HTTPAfterDemux []ChainPlugin `json:"HTTPAfterDemux"`
 
 	// HTTPAfterRouting defines HTTPAfterRouting sub-chains.
-	HTTPAfterRouting []string `json:"HTTPAfterRouting"`
+	HTTPAfterRouting []ChainPlugin `json:"HTTPAfterRouting"`
 
 	// HTTPAfterMux defines HTTPAfterMux sub-chains.
-	HTTPAfterMux []string `json:"HTTPAfterMux"`
+	HTTPAfterMux []ChainPlugin `json:"HTTPAfterMux"`
 
 	// HTTPLast defines HTTPLast sub-chains.
-	HTTPLast []string `json:"HTTPLast"`
+	HTTPLast []ChainPlugin `json:"HTTPLast"`
 }
 
 // OutboundL4Chains is the type used to represent outbound L4 chains.
 type OutboundL4Chains struct {
 	// TCPFirst defines TCPFirst sub-chains.
-	TCPFirst []string `json:"TCPFirst"`
+	TCPFirst []ChainPlugin `json:"TCPFirst"`
 
 	// TCPAfterRouting defines TCPAfterRouting sub-chains.
-	TCPAfterRouting []string `json:"TCPAfterRouting"`
+	TCPAfterRouting []ChainPlugin `json:"TCPAfterRouting"`
 
 	// TCPLast defines TCPLast sub-chains.
-	TCPLast []string `json:"TCPLast"`
+	TCPLast []ChainPlugin `json:"TCPLast"`
 }
 
 // OutboundL7Chains is the type used to represent outbound L7 chains.
 type OutboundL7Chains struct {
 	// HTTPFirst defines HTTPFirst sub-chains.
-	HTTPFirst []string `json:"HTTPFirst"`
+	HTTPFirst []ChainPlugin `json:"HTTPFirst"`
 
 	// HTTPAfterDemux defines HTTPAfterDemux sub-chains.
-	HTTPAfterDemux []string `json:"HTTPAfterDemux"`
+	HTTPAfterDemux []ChainPlugin `json:"HTTPAfterDemux"`
 
 	// HTTPAfterRouting defines HTTPAfterRouting sub-chains.
-	HTTPAfterRouting []string `json:"HTTPAfterRouting"`
+	HTTPAfterRouting []ChainPlugin `json:"HTTPAfterRouting"`
 
 	// HTTPAfterMux defines HTTPAfterMux sub-chains.
-	HTTPAfterMux []string `json:"HTTPAfterMux"`
+	HTTPAfterMux []ChainPlugin `json:"HTTPAfterMux"`
 
 	// HTTPLast defines tcp last sub-chains.
-	HTTPLast []string `json:"HTTPLast"`
+	HTTPLast []ChainPlugin `json:"HTTPLast"`
 }
 
 // PluginChainList defines the list of PluginChain objects.
