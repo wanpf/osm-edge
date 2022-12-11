@@ -43,7 +43,7 @@ entries:
     version: 1.3.0-beta.1
   - apiVersion: v2
     appVersion: 1.3.0-alpha.5
-    created: "2022-12-11T01:39:13.96867427Z"
+    created: "2022-12-11T14:53:42.142498227Z"
     dependencies:
     - condition: contour.enabled
       name: contour
@@ -54,7 +54,7 @@ entries:
       repository: https://charts.flomesh.io
       version: 0.1.7
     description: A Helm chart to install the osm-edge control plane on Kubernetes
-    digest: 57e48d4c091696e87cdb186a1971e0d7b5a0c18d85156efea7f6a5437f04caa3
+    digest: 1ad29bb226153cf0eb77893c7ecba758310db52fcea9006a24af90f17dc4b70c
     kubeVersion: '>= 1.19.0-0'
     name: osm-edge
     type: application
@@ -263,4 +263,4 @@ entries:
     urls:
     - https://flomesh-io.github.io/osm-edge/osm-edge-1.1.0.tgz
     version: 1.1.0
-generated: "2022-12-11T01:39:13.949664865Z"
+generated: "2022-12-11T14:53:42.123614341Z"
