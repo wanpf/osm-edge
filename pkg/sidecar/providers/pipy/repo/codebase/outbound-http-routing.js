@@ -78,6 +78,10 @@
 
           _outService = _outMatch.HttpHostPort2Service?.[headers.host],
 
+          !_outService && _outMatch?.HttpHostPort2Service && (
+            _outService = Object.values(_outMatch.HttpHostPort2Service)?.[0]
+          ),
+          
           // Find route by HTTP host
           route = _outService && routeRulesCache.get(_outMatch.HttpServiceRouteRules?.[_outService]),
 

@@ -72,6 +72,10 @@
           // When serviceidentity is present, service is headers.host
           !_inService && (_inService = (headers.serviceidentity && _inMatch?.HttpHostPort2Service?.[headers.host])),
 
+          !_inService && _inMatch?.HttpHostPort2Service && !_inMatch.HttpHostPort2Service?.[headers.host] && (
+            _inService = Object.values(_inMatch.HttpHostPort2Service)?.[0]
+          ),
+          
           _inMatch.HttpServiceRouteRules?.[_inService]?.RouteRules && (
             routeRules = routeRulesCache.get(_inMatch.HttpServiceRouteRules[_inService].RouteRules)
           ),
