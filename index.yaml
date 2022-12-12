@@ -144,6 +144,26 @@ entries:
     - https://cybwan.github.io/osm-edge/osm-edge-1.2.1-rc.1.tgz
     version: 1.2.1-rc.1
   - apiVersion: v2
+    appVersion: 1.2.1-apay.1
+    created: "2022-12-12T05:48:24.594612217Z"
+    dependencies:
+    - condition: contour.enabled
+      name: contour
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.0.4
+    - condition: fsm.enabled
+      name: fsm
+      repository: https://charts.flomesh.io
+      version: 0.1.8
+    description: A Helm chart to install the osm-edge control plane on Kubernetes
+    digest: df3650fac7bb61f0897ac4dcaae064bd92175748caec493455a0bd23cc9b890a
+    kubeVersion: '>= 1.19.0-0'
+    name: osm-edge
+    type: application
+    urls:
+    - https://cybwan.github.io/osm-edge/osm-edge-1.2.1-apay.1.tgz
+    version: 1.2.1-apay.1
+  - apiVersion: v2
     appVersion: 1.2.1-apay
     created: "2022-12-12T05:39:19.6319082Z"
     dependencies:
@@ -303,4 +323,4 @@ entries:
     urls:
     - https://flomesh-io.github.io/osm-edge/osm-edge-1.1.0.tgz
     version: 1.1.0
-generated: "2022-12-12T05:42:44.824693423Z"
+generated: "2022-12-12T05:48:24.575125484Z"
