@@ -23,7 +23,8 @@ limitations under the License.
 
 // get_current_cgroup_info return 1 if succeed, 0 for error
 static inline int get_current_cgroup_info(void *ctx,
-                                          struct cgroup_info *cg_info) {
+                                          struct cgroup_info *cg_info)
+{
     if (!cg_info) {
         printk("cg_info can not be NULL");
         return 0;
@@ -32,22 +33,24 @@ static inline int get_current_cgroup_info(void *ctx,
     void *info = bpf_map_lookup_elem(&osm_cgr_fib, &cgroup_id);
     if (!info) {
         struct cgroup_info _default = {
-                .id = cgroup_id,
-                .is_in_mesh = 0,
-                .cgroup_ip = {0, 0, 0, 0},
-                .flags = 0,
-                .detected_flags = 0,
+            .id = cgroup_id,
+            .is_in_mesh = 0,
+            .cgroup_ip = {0, 0, 0, 0},
+            .flags = 0,
+            .detected_flags = 0,
         };
         // not checked ever
         struct bpf_sock_tuple tuple = {};
         tuple.ipv4.dport = bpf_htons(SOCK_IP_MARK_PORT);
         tuple.ipv4.daddr = 0;
-        struct bpf_sock *s = bpf_sk_lookup_tcp(ctx, &tuple, sizeof(tuple.ipv4), BPF_F_CURRENT_NETNS, 0);
+        struct bpf_sock *s = bpf_sk_lookup_tcp(ctx, &tuple, sizeof(tuple.ipv4),
+                                               BPF_F_CURRENT_NETNS, 0);
         if (s) {
             _default.is_in_mesh = 1;
             __u32 curr_ip_mark = s->mark;
             bpf_sk_release(s);
-            __u32 *ip = (__u32 *) bpf_map_lookup_elem(&osm_mark_fib, &curr_ip_mark);
+            __u32 *ip =
+                (__u32 *)bpf_map_lookup_elem(&osm_mark_fib, &curr_ip_mark);
             if (!ip) {
                 debugf("get ip for mark 0x%x error", curr_ip_mark);
             } else {
@@ -63,7 +66,7 @@ static inline int get_current_cgroup_info(void *ctx,
         }
         *cg_info = _default;
     } else {
-        *cg_info = *(struct cgroup_info *) info;
+        *cg_info = *(struct cgroup_info *)info;
     }
     return 1;
 }

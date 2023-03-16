@@ -16,7 +16,8 @@ limitations under the License.
 #include "headers/mesh.h"
 #include <linux/bpf.h>
 
-static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops) {
+static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops)
+{
     struct pair p;
     memset(&p, 0, sizeof(p));
     set_ipv4(p.sip, skops->local_ip4);
@@ -35,7 +36,9 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops) {
                 skops->local_ip4 == skops->remote_ip4) {
                 // sidecar to local
                 __u32 ip = skops->remote_ip4;
-                debugf("osm_cni_sockops_ipv4 [Sidecar->Local] detected process %d's ip is %pI4", pid, &ip);
+                debugf("osm_cni_sockops_ipv4 [Sidecar->Local] detected process "
+                       "%d's ip is %pI4",
+                       pid, &ip);
                 bpf_map_update_elem(&osm_proc_fib, &pid, &ip, BPF_ANY);
                 if (skops->remote_port >> 16 == bpf_htons(IN_REDIRECT_PORT)) {
                     printk("incorrect connection: cookie=%d", cookie);
@@ -45,13 +48,19 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops) {
                 // sidecar to sidecar
                 __u32 ip = skops->local_ip4;
                 bpf_map_update_elem(&osm_proc_fib, &pid, &ip, BPF_ANY);
-                debugf("osm_cni_sockops_ipv4 [Sidecar->Sidecar] detected process %d's ip is %pI4", pid, &ip);
+                debugf("osm_cni_sockops_ipv4 [Sidecar->Sidecar] detected "
+                       "process %d's ip is %pI4",
+                       pid, &ip);
             }
         }
         __u32 remote_ip4 = get_ipv4(p.dip);
         __u32 local_ip4 = get_ipv4(p.sip);
-        debugf("osm_cni_sockops_ipv4 [established] remote_ip4: %pI4 -> local_ip4: %pI4", &remote_ip4, &local_ip4);
-        debugf("osm_cni_sockops_ipv4 [established] remote_port: %d -> local_port: %d", bpf_htons(p.dport), skops->local_port);
+        debugf("osm_cni_sockops_ipv4 [established] remote_ip4: %pI4 -> "
+               "local_ip4: %pI4",
+               &remote_ip4, &local_ip4);
+        debugf("osm_cni_sockops_ipv4 [established] remote_port: %d -> "
+               "local_port: %d",
+               bpf_htons(p.dport), skops->local_port);
         // get_sockopts can read pid and cookie,
         // we should write a new map named osm_nat_fib
         bpf_map_update_elem(&osm_nat_fib, &p, &dd, BPF_ANY);
@@ -61,24 +70,29 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops) {
                skops->remote_ip4 == sidecar_ip) {
         __u32 remote_ip4 = get_ipv4(p.dip);
         __u32 local_ip4 = get_ipv4(p.sip);
-        debugf("osm_cni_sockops_ipv4 [established] remote_ip4: %pI4 -> local_ip4: %pI4", &remote_ip4, &local_ip4);
-        debugf("osm_cni_sockops_ipv4 [established] remote_port: %d -> local_port: %d", bpf_htons(p.dport), skops->local_port);
+        debugf("osm_cni_sockops_ipv4 [established] remote_ip4: %pI4 -> "
+               "local_ip4: %pI4",
+               &remote_ip4, &local_ip4);
+        debugf("osm_cni_sockops_ipv4 [established] remote_port: %d -> "
+               "local_port: %d",
+               bpf_htons(p.dport), skops->local_port);
         bpf_sock_hash_update(skops, &osm_sock_fib, &p, BPF_NOEXIST);
     }
     return 0;
 }
 
-__section("sockops") int osm_cni_sock_ops(struct bpf_sock_ops *skops) {
+__section("sockops") int osm_cni_sock_ops(struct bpf_sock_ops *skops)
+{
     switch (skops->op) {
-        case BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB:
-        case BPF_SOCK_OPS_ACTIVE_ESTABLISHED_CB:
-            switch (skops->family) {
-                case 2:
-                    // AF_INET, we don't include socket.h, because it may
-                    // cause an import error.
-                    return osm_cni_sockops_ipv4(skops);
-            }
-            return 0;
+    case BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB:
+    case BPF_SOCK_OPS_ACTIVE_ESTABLISHED_CB:
+        switch (skops->family) {
+        case 2:
+            // AF_INET, we don't include socket.h, because it may
+            // cause an import error.
+            return osm_cni_sockops_ipv4(skops);
+        }
+        return 0;
     }
     return 0;
 }
