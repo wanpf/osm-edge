@@ -125,6 +125,12 @@ go-test-coverage: embed-files
 go-benchmark: embed-files
 	./scripts/go-benchmark.sh
 
+lint-c:
+	clang-format --Werror -n bpf/*.c bpf/headers/*.h
+
+format-c:
+	find . -regex '.*\.\(c\|h\)' -exec clang-format -style=file -i {} \;
+
 .PHONY: kind-up
 kind-up:
 	./scripts/kind-with-registry.sh
