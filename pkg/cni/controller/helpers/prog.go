@@ -23,15 +23,15 @@ import (
 )
 
 // LoadProgs load ebpf progs
-func LoadProgs(debug bool, skip bool) error {
-	if skip {
-		return nil
-	}
+func LoadProgs(useCniMode, debug bool) error {
 	if os.Getuid() != 0 {
 		return fmt.Errorf("root user in required for this process or container")
 	}
 	cmd := exec.Command("make", "load")
 	cmd.Env = os.Environ()
+	if useCniMode {
+		cmd.Env = append(cmd.Env, "ENABLE_CNI_MODE=1")
+	}
 	if debug {
 		cmd.Env = append(cmd.Env, "DEBUG=1")
 	}

@@ -7,6 +7,7 @@ PIN_OBJECT_NS_PATH=/sys/fs/bpf
 PIN_GLOBAL_NS_PATH=/sys/fs/bpf/tc/globals
 
 MACROS:=
+CNI_MODE ?= false
 DEBUG ?= 1
 
 # see https://stackoverflow.com/questions/15063298/how-to-check-kernel-version-in-makefile
@@ -30,6 +31,12 @@ if($(KREV) < $(3)) {print 0} else { print 1 } \
 # See https://nakryiko.com/posts/bpf-tips-printk/, kernel will auto print newline if version greater than 5.9.0
 ifneq ($(call kver_ge,5,8,999),1)
 MACROS:= $(MACROS) -DPRINTNL # kernel version less
+endif
+
+ifeq ($(CNI_MODE),true)
+	MACROS:= $(MACROS) -DENABLE_CNI_MODE=1
+else
+	MACROS:= $(MACROS) -DENABLE_CNI_MODE=0
 endif
 
 ifeq ($(DEBUG),1)

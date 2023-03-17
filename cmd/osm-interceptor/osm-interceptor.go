@@ -37,7 +37,7 @@ var rootCmd = &cobra.Command{
 	Short: "Use eBPF to speed up your Service Mesh like crossing an Einstein-Rosen Bridge.",
 	Long:  `Use eBPF to speed up your Service Mesh like crossing an Einstein-Rosen Bridge.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := helpers.LoadProgs(config.Debug, config.Skip); err != nil {
+		if err := helpers.LoadProgs(config.EnableCNI, config.Debug); err != nil {
 			return fmt.Errorf("failed to load ebpf programs: %v", err)
 		}
 
