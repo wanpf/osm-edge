@@ -5,7 +5,7 @@
     failover,
   } = pipy.solve('utils.js'),
 
-  allMethods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allMethods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 
   clusterCache = new algo.Cache(
     (clusterName => (
