@@ -21,7 +21,7 @@ pipy({
       .branch(
         () => _rateLimit.backlog > 0, (
           $=>$
-          .muxQueue(() => _rateLimit, () => ({ maxQueue: _rateLimit.backlog })).to(
+          .mux(() => _rateLimit, () => ({ maxQueue: _rateLimit.backlog })).to(
             $=>$
             .onStart((_, n) => void (_overflow = (n > 1)))
             .branch(
@@ -37,7 +37,7 @@ pipy({
               ), (
                 $=>$
                 .throttleMessageRate(() => _rateLimit.quota)
-                .demuxQueue().to($=>$.chain())
+                .demux().to($=>$.chain())
               )
             )
           )
