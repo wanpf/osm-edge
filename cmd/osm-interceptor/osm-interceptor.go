@@ -18,7 +18,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path"
 	"runtime"
 	"strings"
 
@@ -44,8 +43,7 @@ var rootCmd = &cobra.Command{
 		stop := make(chan struct{}, 1)
 		cniReady := make(chan struct{}, 1)
 		if config.EnableCNI {
-			s := cniserver.NewServer(path.Join(config.HostVarRun, "osm-cni.sock"),
-				"/sys/fs/bpf", cniReady, stop)
+			s := cniserver.NewServer(config.CNISock, "/sys/fs/bpf", cniReady, stop)
 			if err := s.Start(); err != nil {
 				log.Fatal(err)
 				return err
