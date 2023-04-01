@@ -31,12 +31,14 @@ __section("cgroup/getsockopt") int osm_cni_sock_opt(struct bpf_sockopt *ctx)
     case 2: // ipv4
         set_ipv4(p.dip, ctx->sk->src_ip4);
         set_ipv4(p.sip, ctx->sk->dst_ip4);
+#ifdef DEBUG
         __u32 dst_ip4 = get_ipv4(p.dip);
         __u32 src_ip4 = get_ipv4(p.sip);
         debugf("osm_cni_sock_opt src ip4: %pI4 src port: %d", &src_ip4,
                bpf_htons(p.sport));
         debugf("osm_cni_sock_opt dst ip4: %pI4 dst port: %d", &dst_ip4,
                bpf_htons(p.dport));
+#endif
         origin = bpf_map_lookup_elem(&osm_nat_fib, &p);
         if (origin) {
             // rewrite original_dst
@@ -54,9 +56,11 @@ __section("cgroup/getsockopt") int osm_cni_sock_opt(struct bpf_sockopt *ctx)
             };
             *(struct sockaddr_in *)ctx->optval = sa;
 
+#ifdef DEBUG
             __u32 origin_ip4 = get_ipv4(origin->ip);
             debugf("osm_cni_sock_opt origin dst ip4: %pI4 origin dst port: %d",
                    &origin_ip4, bpf_htons(origin->port));
+#endif
         } else {
             debugf("osm_cni_sock_opt osm_nat_fib:NOT FOUND");
         }

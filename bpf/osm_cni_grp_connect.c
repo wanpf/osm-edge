@@ -141,10 +141,12 @@ static inline int osm_cni_tcp_connect4(struct bpf_sock_addr *ctx)
             }
         }
         ctx->user_port = bpf_htons(OUT_REDIRECT_PORT);
+#ifdef DEBUG
         __u32 rewrite_dst_ip = ctx->user_ip4;
         debugf("osm_cni_tcp_connect4 [App->Sidecar]: rewrite dst ip: %pI4, "
                "redirect dst port: %d",
                &rewrite_dst_ip, bpf_htons(ctx->user_port));
+#endif
     } else {
         // from sidecar to others
         __u32 _dst_ip[4];
