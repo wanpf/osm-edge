@@ -106,24 +106,6 @@ static inline int osm_cni_tcp_connect4(struct bpf_sock_addr *ctx)
                 .sin_port = 0,
                 .sin_family = 2,
             };
-            // todo(kebe7jun) use the following way will cause an error like:
-            /*
-                578: (07) r2 += -40
-                ; if (bpf_bind(ctx, &addr, sizeof(struct sockaddr_in))) {
-                579: (bf) r1 = r6
-                580: (b7) r3 = 16
-                581: (85) call bpf_bind#64
-                invalid indirect read from stack R2 off -40+8 size 16
-                processed 1136 insns (limit 1000000) max_states_per_insn 1
-               total_states 81 peak_states 81 mark_read 20
-
-                libbpf: -- END LOG --
-                libbpf: failed to load program 'cgroup/connect4'
-                libbpf: failed to load object 'osm_cni_grp_connect.o'
-            */
-            // addr.sin_addr.s_addr = curr_pod_ip;
-            // addr.sin_port = 0;
-            // addr.sin_family = 2;
             if (bpf_bind(ctx, &addr, sizeof(struct sockaddr_in))) {
                 debugf("osm_cni_tcp_connect4 bind %pI4 error", &curr_pod_ip);
             }

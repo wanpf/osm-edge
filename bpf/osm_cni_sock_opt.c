@@ -12,8 +12,7 @@ __section("cgroup/getsockopt") int osm_cni_sock_opt(struct bpf_sockopt *ctx)
     // should limit this.
     if (ctx->optlen > MAX_OPS_BUFF_LENGTH) {
         // debugf("optname: %d, force set optlen to %d, original optlen %d is
-        // too high",
-        //        ctx->optname, MAX_OPS_BUFF_LENGTH, ctx->optlen);
+        // too high", ctx->optname, MAX_OPS_BUFF_LENGTH, ctx->optlen);
         ctx->optlen = MAX_OPS_BUFF_LENGTH;
     }
     // envoy will call getsockopt with SO_ORIGINAL_DST, we should rewrite it to

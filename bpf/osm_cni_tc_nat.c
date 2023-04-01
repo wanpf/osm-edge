@@ -59,8 +59,7 @@ __section("classifier_ingress") int osm_cni_tc_dnat(struct __sk_buff *skb)
     if (tcph->syn && !tcph->ack) {
         // first packet
         if (tcph->dest == in_port) {
-            // same node, already rewrite dest port by connect.
-            // bypass.
+            // same node, already rewrite dest port by connect. bypass.
             debugf("osm_cni_tc_nat [ingress]: already dnat");
             return TC_ACT_OK;
         }
@@ -91,9 +90,6 @@ __section("classifier_ingress") int osm_cni_tc_dnat(struct __sk_buff *skb)
             return TC_ACT_OK;
         }
 
-        // like from 10.0.0.1:23456 => 172.31.0.123:80
-        // we will rewrite the dest port from 80 to 15003
-        // which will be: 10.0.0.1:23456 => 172.31.0.123:15003
         struct pair p;
         memset(&p, 0, sizeof(p));
         set_ipv6(p.sip, src_ip);
@@ -122,15 +118,6 @@ __section("classifier_ingress") int osm_cni_tc_dnat(struct __sk_buff *skb)
         p.dport = in_port;
         struct origin_info *origin = bpf_map_lookup_elem(&osm_nat_fib, &p);
         if (!origin) {
-            // not exists
-            // char srcip[16];
-            // ipstr(src_ip, srcip);
-            // char dip[16];
-            // ipstr(dst_ip, dip);
-            // debugf("request origin not found %s -> %s", srcip, dip);
-            // debugf("request origin not found port %d -> %d",
-            //        bpf_htons(tcph->source), bpf_htons(tcph->dest));
-            // debugf("osm_cni_tc_nat: no origin");
             return TC_ACT_OK;
         }
         if (!(origin->flags & TC_ORIGIN_FLAG)) {
@@ -198,10 +185,6 @@ __section("classifier_egress") int osm_cni_tc_snat(struct __sk_buff *skb)
         // bypassed");
         return TC_ACT_OK;
     }
-    // response
-    // like from 172.31.0.123:15003 => 10.0.0.1:23456
-    // to avoid the client drop packet, we must reset the source port from
-    // 15003 to 80.
     struct pair p;
     memset(&p, 0, sizeof(p));
     set_ipv6(p.dip, src_ip);
