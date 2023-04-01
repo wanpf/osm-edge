@@ -9,17 +9,17 @@ import (
 )
 
 // LoadProgs load ebpf progs
-func LoadProgs(useCniMode, debug bool) error {
+func LoadProgs(useCniMode, kernelTracing bool) error {
 	if os.Getuid() != 0 {
 		return fmt.Errorf("root user in required for this process or container")
 	}
 	cmd := exec.Command("make", "load")
 	cmd.Env = os.Environ()
 	if useCniMode {
-		cmd.Env = append(cmd.Env, "ENABLE_CNI_MODE=1")
+		cmd.Env = append(cmd.Env, "CNI_MODE=true")
 	}
-	if debug {
-		cmd.Env = append(cmd.Env, "DEBUG=1")
+	if !kernelTracing {
+		cmd.Env = append(cmd.Env, "DEBUG=0")
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 	Short: "Use eBPF to speed up your Service Mesh like crossing an Einstein-Rosen Bridge.",
 	Long:  `Use eBPF to speed up your Service Mesh like crossing an Einstein-Rosen Bridge.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := helpers.LoadProgs(config.EnableCNI, config.Debug); err != nil {
+		if err := helpers.LoadProgs(config.EnableCNI, config.KernelTracing); err != nil {
 			return fmt.Errorf("failed to load ebpf programs: %v", err)
 		}
 
@@ -58,7 +58,7 @@ func main() {
 
 func init() {
 	// Get some flags from commands
-	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "kernel-tracing", "d", false, "Debug mode")
+	rootCmd.PersistentFlags().BoolVarP(&config.KernelTracing, "kernel-tracing", "d", false, "KernelTracing mode")
 	rootCmd.PersistentFlags().BoolVarP(&config.Skip, "skip", "s", false, "Skip init bpf")
 	rootCmd.PersistentFlags().BoolVarP(&config.DisableWatcher, "disableWatcher", "w", false, "disable Pod watcher")
 	rootCmd.PersistentFlags().BoolVarP(&config.IsKind, "kind", "k", false, "Enable when Kubernetes is running in Kind")

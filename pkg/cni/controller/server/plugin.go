@@ -12,7 +12,6 @@ import (
 	"path"
 	"runtime/debug"
 	"strconv"
-	"strings"
 	"syscall"
 	"unsafe"
 
@@ -194,7 +193,7 @@ func (s *server) checkAndRepairPodPrograms() error {
 	for _, f := range hostProc {
 		if _, err = strconv.Atoi(f.Name()); err == nil {
 			pid := f.Name()
-			if skipListening(s.serviceMeshMode, pid) {
+			if skipListening(pid) {
 				// ignore non-injected pods
 				log.Debug().Msgf("skip listening for pid(%s)", pid)
 				continue
@@ -235,13 +234,9 @@ func (s *server) checkAndRepairPodPrograms() error {
 	return nil
 }
 
-func skipListening(serviceMeshMode string, pid string) bool {
-	b, _ := os.ReadFile(fmt.Sprintf("%s/%s/comm", config.HostProc, pid))
-	comm := strings.TrimSpace(string(b))
-
-	if comm != "pilot-agent" {
-		return true
-	}
+func skipListening(pid string) bool {
+	//b, _ := os.ReadFile(fmt.Sprintf("%s/%s/comm", config.HostProc, pid))
+	//comm := strings.TrimSpace(string(b))
 
 	findStr := func(path string, str []byte) bool {
 		f, _ := os.Open(path)

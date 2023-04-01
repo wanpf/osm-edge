@@ -70,9 +70,9 @@ spec:
         name: osm-interceptor
         args:
         - /app/osm-interceptor
-        - --cni-mode=true
-        - --kind=false
-        - --debug={{ .Values.osm.osmInterceptor.debug }}
+        - --cni-mode={{ .Values.osm.osmInterceptor.cniMode }}
+        - --kind={{ .Values.osm.osmInterceptor.kindMode }}
+        - --kernel-tracing={{ .Values.osm.osmInterceptor.kernelTracing }}
         lifecycle:
           preStop:
             exec:

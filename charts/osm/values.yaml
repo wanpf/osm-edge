@@ -207,7 +207,9 @@ osm:
   #
   # -- OSM interceptor parameters
   osmInterceptor:
-    debug: false
+    kernelTracing: false
+    cniMode: true
+    kindMode: false
     resource:
       limits:
         cpu: "1.5"
