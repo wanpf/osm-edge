@@ -1,4 +1,3 @@
-// Package helpers implements ebpf helpers.
 package helpers
 
 import (
@@ -7,7 +6,6 @@ import (
 	"os/exec"
 
 	"github.com/cilium/ebpf"
-	log "github.com/sirupsen/logrus"
 )
 
 // LoadProgs load ebpf progs
@@ -76,7 +74,7 @@ func GetTrafficControlIngressProg() *ebpf.Program {
 	if ingress == nil {
 		err := initTrafficControlProgs()
 		if err != nil {
-			log.Errorf("init tc prog filed: %v", err)
+			log.Error().Msgf("init tc prog filed: %v", err)
 		}
 	}
 	return ingress
@@ -87,7 +85,7 @@ func GetTrafficControlEgressProg() *ebpf.Program {
 	if egress == nil {
 		err := initTrafficControlProgs()
 		if err != nil {
-			log.Errorf("init tc prog filed: %v", err)
+			log.Error().Msgf("init tc prog filed: %v", err)
 		}
 	}
 	return egress

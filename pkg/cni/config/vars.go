@@ -23,6 +23,4 @@ var (
 	KubeConfig string
 	// Context defines kube context
 	Context string
-	// EnableHotRestart indicates HotRestart feature enable/disable
-	EnableHotRestart = false
 )

@@ -8,11 +8,9 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
 	"unsafe"
 
 	"github.com/cilium/ebpf"
-	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 
@@ -29,21 +27,13 @@ func runLocalPodController(skip bool, client kubernetes.Interface, stop chan str
 		return fmt.Errorf("failed to load ebpf maps: %v", err)
 	}
 
-	go func() {
-		for {
-			tracePodFibMap()
-			traceNatFibMap()
-			time.Sleep(time.Second * 20)
-		}
-	}()
-
 	w := newWatcher(createLocalPodController(client))
 
 	if err = w.start(); err != nil {
 		return fmt.Errorf("start watcher failed: %v", err)
 	}
 
-	log.Info("Pod watcher Ready")
+	log.Info().Msg("Pod watcher Ready")
 	if err = helpers.AttachProgs(skip); err != nil {
 		return fmt.Errorf("failed to attach ebpf programs: %v", err)
 	}
@@ -59,7 +49,7 @@ func runLocalPodController(skip bool, client kubernetes.Interface, stop chan str
 	if err = helpers.UnLoadProgs(skip); err != nil {
 		return fmt.Errorf("unload failed: %v", err)
 	}
-	log.Info("Pod watcher Down")
+	log.Info().Msg("Pod watcher Down")
 	return nil
 }
 
@@ -114,15 +104,15 @@ func addFunc(obj interface{}) {
 	if !isInjectedSidecar(pod) {
 		return
 	}
-	log.Debugf("got pod updated %s/%s", pod.Namespace, pod.Name)
+	log.Debug().Msgf("got pod updated %s/%s", pod.Namespace, pod.Name)
 
 	_ip, _ := util.IP2Pointer(pod.Status.PodIP)
-	log.Infof("update osm_pod_fib with ip: %s", pod.Status.PodIP)
+	log.Info().Msgf("update osm_pod_fib with ip: %s", pod.Status.PodIP)
 	p := podConfig{}
 	parsePodConfigFromAnnotations(pod.Annotations, &p)
 	err := helpers.GetPodFibMap().Update(_ip, &p, ebpf.UpdateAny)
 	if err != nil {
-		log.Errorf("update osm_pod_fib %s error: %v", pod.Status.PodIP, err)
+		log.Error().Msgf("update osm_pod_fib %s error: %v", pod.Status.PodIP, err)
 	}
 }
 
@@ -152,7 +142,7 @@ func getIPRangesFromString(v string) []cidr {
 		if p := strings.TrimSpace(vv); p != "" {
 			_, n, err := net.ParseCIDR(vv)
 			if err != nil {
-				log.Errorf("parse cidr from %s error: %v", vv, err)
+				log.Error().Msgf("parse cidr from %s error: %v", vv, err)
 				continue
 			}
 			c := cidr{}
@@ -272,7 +262,7 @@ func deleteFunc(obj interface{}) {
 		return
 	}
 	if pod, ok := obj.(*v1.Pod); ok {
-		log.Debugf("got pod delete %s/%s", pod.Namespace, pod.Name)
+		log.Debug().Msgf("got pod delete %s/%s", pod.Namespace, pod.Name)
 		_ip, _ := util.IP2Pointer(pod.Status.PodIP)
 		_ = helpers.GetPodFibMap().Delete(_ip)
 	}

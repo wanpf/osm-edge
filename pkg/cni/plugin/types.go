@@ -1,3 +1,4 @@
+// Package plugin implements ecnet cni plugin.
 package plugin
 
 import (
@@ -7,7 +8,7 @@ import (
 )
 
 var (
-	log = logger.New("osm-cni")
+	log = logger.New("cni-plugin")
 )
 
 func init() {

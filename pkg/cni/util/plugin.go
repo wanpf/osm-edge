@@ -7,8 +7,6 @@ import (
 	"fmt"
 
 	"github.com/fsnotify/fsnotify"
-
-	"github.com/openservicemesh/osm/pkg/cni/file"
 )
 
 // CreateFileWatcher creates a file watcher that watches for any changes to the directory
@@ -22,7 +20,7 @@ func CreateFileWatcher(dirs ...string) (watcher *fsnotify.Watcher, fileModified 
 	go watchFiles(watcher, fileModified, errChan)
 
 	for _, dir := range dirs {
-		if file.IsDirWriteable(dir) != nil {
+		if IsDirWriteable(dir) != nil {
 			continue
 		}
 		if err = watcher.Add(dir); err != nil {

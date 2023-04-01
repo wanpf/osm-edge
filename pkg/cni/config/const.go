@@ -10,8 +10,6 @@ const (
 	CNICreatePodURL = "/v1/cni/create-pod"
 	// CNIDeletePodURL is the route for cni plugin for deleting pod
 	CNIDeletePodURL = "/v1/cni/delete-pod"
-	// CNITransferFdStartURL is the route for cni plugin for transfer fd
-	CNITransferFdStartURL = "/v1/cni/transfer-fd"
 
 	// OsmPodFibEbpfMap is the mount point of osm_pod_fib map
 	OsmPodFibEbpfMap = "/sys/fs/bpf/tc/globals/osm_pod_fib"

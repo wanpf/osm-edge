@@ -1,34 +1,21 @@
-/*
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 // Package main implements osm intercepter.
 package main
 
 import (
 	"fmt"
 	"os"
-	"runtime"
-	"strings"
+	"path"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/openservicemesh/osm/pkg/cni/config"
 	"github.com/openservicemesh/osm/pkg/cni/controller"
 	"github.com/openservicemesh/osm/pkg/cni/controller/helpers"
 	cniserver "github.com/openservicemesh/osm/pkg/cni/controller/server"
+	"github.com/openservicemesh/osm/pkg/logger"
 )
+
+var log = logger.New("osm-interceptor-cli")
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -43,15 +30,15 @@ var rootCmd = &cobra.Command{
 		stop := make(chan struct{}, 1)
 		cniReady := make(chan struct{}, 1)
 		if config.EnableCNI {
-			s := cniserver.NewServer(config.CNISock, "/sys/fs/bpf", cniReady, stop)
+			s := cniserver.NewServer(path.Join("/host", config.CNISock), "/sys/fs/bpf", cniReady, stop)
 			if err := s.Start(); err != nil {
-				log.Fatal(err)
+				log.Fatal().Err(err)
 				return err
 			}
 		}
 		// todo: wait for stop
 		if err := controller.Run(config.DisableWatcher, config.Skip, cniReady, stop); err != nil {
-			log.Fatal(err)
+			log.Fatal().Err(err)
 			return err
 		}
 		return nil
@@ -70,26 +57,8 @@ func main() {
 }
 
 func init() {
-	// Setup log format
-	log.SetFormatter(&log.TextFormatter{
-		DisableTimestamp:       false,
-		FullTimestamp:          true,
-		DisableLevelTruncation: true,
-		DisableColors:          true,
-		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			fs := strings.Split(f.File, "/")
-			filename := fs[len(fs)-1]
-			ff := strings.Split(f.Function, "/")
-			_f := ff[len(ff)-1]
-			return fmt.Sprintf("%s()", _f), fmt.Sprintf("%s:%d", filename, f.Line)
-		},
-	})
-	log.SetOutput(os.Stdout)
-	log.SetLevel(log.InfoLevel)
-	log.SetReportCaller(true)
-
 	// Get some flags from commands
-	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "debug", "d", false, "Debug mode")
+	rootCmd.PersistentFlags().BoolVarP(&config.Debug, "kernel-tracing", "d", false, "Debug mode")
 	rootCmd.PersistentFlags().BoolVarP(&config.Skip, "skip", "s", false, "Skip init bpf")
 	rootCmd.PersistentFlags().BoolVarP(&config.DisableWatcher, "disableWatcher", "w", false, "disable Pod watcher")
 	rootCmd.PersistentFlags().BoolVarP(&config.IsKind, "kind", "k", false, "Enable when Kubernetes is running in Kind")
@@ -101,5 +70,4 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&config.HostVarRun, "host-var-run", "/host/var/run", "/var/run mount path")
 	rootCmd.PersistentFlags().StringVar(&config.KubeConfig, "kubeconfig", "", "Kubernetes configuration file")
 	rootCmd.PersistentFlags().StringVar(&config.Context, "kubecontext", "", "The name of the kube config context to use")
-	rootCmd.PersistentFlags().BoolVar(&config.EnableHotRestart, "enable-hot-restart", false, "enable hot restart")
 }

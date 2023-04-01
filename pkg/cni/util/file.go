@@ -1,5 +1,4 @@
-// Package file implements file helpers.
-package file
+package util
 
 import (
 	"fmt"

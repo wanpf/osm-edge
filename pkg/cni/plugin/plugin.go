@@ -16,7 +16,7 @@ import (
 	cniv1 "github.com/containernetworking/cni/pkg/types/100"
 
 	"github.com/openservicemesh/osm/pkg/cni/config"
-	"github.com/openservicemesh/osm/pkg/cni/file"
+	"github.com/openservicemesh/osm/pkg/cni/util"
 )
 
 const (
@@ -133,7 +133,7 @@ func CmdAdd(args *skel.CmdArgs) error {
 			log.Error().Msgf("osm-cni cmdAdd failed to load args %v %v", string(args.StdinData), err)
 		} else {
 			if !ignore(conf, &k8sArgs) {
-				if file.Exists(config.CNISock) {
+				if util.Exists(config.CNISock) {
 					httpc := http.Client{
 						Transport: &http.Transport{
 							DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
@@ -170,7 +170,7 @@ func CmdCheck(*skel.CmdArgs) (err error) {
 
 // CmdDelete is the implementation of the cmdDelete interface of CNI plugin
 func CmdDelete(args *skel.CmdArgs) error {
-	if !file.Exists(config.CNISock) {
+	if !util.Exists(config.CNISock) {
 		return nil
 	}
 
