@@ -1,5 +1,5 @@
-// Package server implements OSM CNI Controller.
-package server
+// Package cniserver implements OSM CNI Control Server.
+package cniserver
 
 import "github.com/openservicemesh/osm/pkg/logger"
 

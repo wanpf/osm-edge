@@ -1,5 +1,5 @@
-// Package controller implements osm interceptor.
-package controller
+// Package podwatcher implements OSM CNI Pod Watcher.
+package podwatcher
 
 import "github.com/openservicemesh/osm/pkg/logger"
 

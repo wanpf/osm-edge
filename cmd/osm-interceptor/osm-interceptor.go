@@ -14,9 +14,9 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/openservicemesh/osm/pkg/cni/config"
-	"github.com/openservicemesh/osm/pkg/cni/controller"
+	"github.com/openservicemesh/osm/pkg/cni/controller/cniserver"
 	"github.com/openservicemesh/osm/pkg/cni/controller/helpers"
-	cniserver "github.com/openservicemesh/osm/pkg/cni/controller/server"
+	"github.com/openservicemesh/osm/pkg/cni/controller/podwatcher"
 	"github.com/openservicemesh/osm/pkg/k8s"
 	"github.com/openservicemesh/osm/pkg/k8s/events"
 	"github.com/openservicemesh/osm/pkg/logger"
@@ -115,7 +115,7 @@ func main() {
 			log.Fatal().Err(err)
 		}
 	}
-	if err = controller.Run(kubeClient, stop); err != nil {
+	if err = podwatcher.Run(kubeClient, stop); err != nil {
 		log.Fatal().Err(err)
 	}
 
