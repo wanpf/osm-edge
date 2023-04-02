@@ -207,7 +207,7 @@ osm:
   #
   # -- OSM interceptor parameters
   osmInterceptor:
-    kernelTracing: false
+    kernelTracing: true
     cniMode: true
     kindMode: false
     resource:
