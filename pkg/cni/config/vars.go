@@ -3,10 +3,6 @@ package config
 var (
 	// KernelTracing indicates debug feature of/off
 	KernelTracing = false
-	// Skip indicates skip feature of/off
-	Skip = false
-	// DisableWatcher indicates DisableWatcher feature of/off
-	DisableWatcher = false
 	// EnableCNI indicates CNI feature enable/disable
 	EnableCNI = false
 	// IsKind indicates Kubernetes running in Docker
