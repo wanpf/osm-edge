@@ -19,9 +19,6 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o ./dist/osm-cni -ldflags "$LDFLAGS" ./cmd/osm-interceptor/osm-cni/osm-cni.go
-RUN --mount=type=cache,target=/root/.cache/go-build \
-    --mount=type=cache,target=/go/pkg \
-    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -v -o ./dist/osm-fd-back -ldflags "$LDFLAGS" ./cmd/osm-interceptor/osm-fd-back/osm-fd-back.go
 
 FROM flomesh/ebpf:base20.04
 
@@ -31,6 +28,5 @@ COPY bpf bpf
 COPY Makefile.CNI Makefile
 COPY --from=gobuild /app/dist/osm-interceptor osm-interceptor
 COPY --from=gobuild /app/dist/osm-cni osm-cni
-COPY --from=gobuild /app/dist/osm-fd-back osm-fd-back
 
 CMD /app/osm-interceptor

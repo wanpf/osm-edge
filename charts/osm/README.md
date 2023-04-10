@@ -235,7 +235,9 @@ The following table lists the configurable parameters of the osm chart and their
 | osm.osmInterceptor.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values[0] | string | `"osm-controller"` |  |
 | osm.osmInterceptor.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey | string | `"kubernetes.io/hostname"` |  |
 | osm.osmInterceptor.affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight | int | `100` |  |
-| osm.osmInterceptor.debug | bool | `false` |  |
+| osm.osmInterceptor.cniMode | bool | `true` |  |
+| osm.osmInterceptor.kernelTracing | bool | `true` |  |
+| osm.osmInterceptor.kindMode | bool | `false` |  |
 | osm.osmInterceptor.resource.limits.cpu | string | `"1.5"` |  |
 | osm.osmInterceptor.resource.limits.memory | string | `"1G"` |  |
 | osm.osmInterceptor.resource.requests.cpu | string | `"0.5"` |  |

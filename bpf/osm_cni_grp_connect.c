@@ -1,16 +1,3 @@
-/*
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 #include "headers/cgroup.h"
 #include "headers/helpers.h"
 #include "headers/maps.h"
@@ -119,24 +106,6 @@ static inline int osm_cni_tcp_connect4(struct bpf_sock_addr *ctx)
                 .sin_port = 0,
                 .sin_family = 2,
             };
-            // todo(kebe7jun) use the following way will cause an error like:
-            /*
-                578: (07) r2 += -40
-                ; if (bpf_bind(ctx, &addr, sizeof(struct sockaddr_in))) {
-                579: (bf) r1 = r6
-                580: (b7) r3 = 16
-                581: (85) call bpf_bind#64
-                invalid indirect read from stack R2 off -40+8 size 16
-                processed 1136 insns (limit 1000000) max_states_per_insn 1
-               total_states 81 peak_states 81 mark_read 20
-
-                libbpf: -- END LOG --
-                libbpf: failed to load program 'cgroup/connect4'
-                libbpf: failed to load object 'osm_cni_grp_connect.o'
-            */
-            // addr.sin_addr.s_addr = curr_pod_ip;
-            // addr.sin_port = 0;
-            // addr.sin_family = 2;
             if (bpf_bind(ctx, &addr, sizeof(struct sockaddr_in))) {
                 debugf("osm_cni_tcp_connect4 bind %pI4 error", &curr_pod_ip);
             }
@@ -154,10 +123,12 @@ static inline int osm_cni_tcp_connect4(struct bpf_sock_addr *ctx)
             }
         }
         ctx->user_port = bpf_htons(OUT_REDIRECT_PORT);
+#ifdef DEBUG
         __u32 rewrite_dst_ip = ctx->user_ip4;
         debugf("osm_cni_tcp_connect4 [App->Sidecar]: rewrite dst ip: %pI4, "
                "redirect dst port: %d",
                &rewrite_dst_ip, bpf_htons(ctx->user_port));
+#endif
     } else {
         // from sidecar to others
         __u32 _dst_ip[4];

@@ -1,16 +1,3 @@
-/*
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 #include "headers/helpers.h"
 #include "headers/maps.h"
 #include <linux/bpf.h>
@@ -25,8 +12,7 @@ __section("cgroup/getsockopt") int osm_cni_sock_opt(struct bpf_sockopt *ctx)
     // should limit this.
     if (ctx->optlen > MAX_OPS_BUFF_LENGTH) {
         // debugf("optname: %d, force set optlen to %d, original optlen %d is
-        // too high",
-        //        ctx->optname, MAX_OPS_BUFF_LENGTH, ctx->optlen);
+        // too high", ctx->optname, MAX_OPS_BUFF_LENGTH, ctx->optlen);
         ctx->optlen = MAX_OPS_BUFF_LENGTH;
     }
     // envoy will call getsockopt with SO_ORIGINAL_DST, we should rewrite it to
@@ -44,12 +30,14 @@ __section("cgroup/getsockopt") int osm_cni_sock_opt(struct bpf_sockopt *ctx)
     case 2: // ipv4
         set_ipv4(p.dip, ctx->sk->src_ip4);
         set_ipv4(p.sip, ctx->sk->dst_ip4);
+#ifdef DEBUG
         __u32 dst_ip4 = get_ipv4(p.dip);
         __u32 src_ip4 = get_ipv4(p.sip);
         debugf("osm_cni_sock_opt src ip4: %pI4 src port: %d", &src_ip4,
                bpf_htons(p.sport));
         debugf("osm_cni_sock_opt dst ip4: %pI4 dst port: %d", &dst_ip4,
                bpf_htons(p.dport));
+#endif
         origin = bpf_map_lookup_elem(&osm_nat_fib, &p);
         if (origin) {
             // rewrite original_dst
@@ -67,9 +55,11 @@ __section("cgroup/getsockopt") int osm_cni_sock_opt(struct bpf_sockopt *ctx)
             };
             *(struct sockaddr_in *)ctx->optval = sa;
 
+#ifdef DEBUG
             __u32 origin_ip4 = get_ipv4(origin->ip);
             debugf("osm_cni_sock_opt origin dst ip4: %pI4 origin dst port: %d",
                    &origin_ip4, bpf_htons(origin->port));
+#endif
         } else {
             debugf("osm_cni_sock_opt osm_nat_fib:NOT FOUND");
         }

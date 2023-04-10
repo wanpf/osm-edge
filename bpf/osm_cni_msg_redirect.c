@@ -1,16 +1,3 @@
-/*
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 #include "headers/helpers.h"
 #include "headers/maps.h"
 #include <linux/bpf.h>
@@ -30,13 +17,14 @@ __section("sk_msg") int osm_cni_msg_redirect(struct sk_msg_md *msg)
         break;
     }
 
+#ifdef DEBUG
     __u32 local_ip4 = get_ipv4(p.dip);
     __u32 remote_ip4 = get_ipv4(p.sip);
     debugf("osm_cni_msg_redirect src ip4: %pI4 -> dst ip4: %pI4", &local_ip4,
            &remote_ip4);
     debugf("osm_cni_msg_redirect src port: %d -> dst port: %d",
            bpf_htons(p.dport), bpf_htons(p.sport));
-
+#endif
     long ret = bpf_msg_redirect_hash(msg, &osm_sock_fib, &p, BPF_F_INGRESS);
     if (ret)
         debugf("osm_cni_msg_redirect redirect %d bytes with eBPF successfully",

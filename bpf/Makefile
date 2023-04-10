@@ -4,7 +4,6 @@ CFLAGS=-O2 -g  -Wall -target bpf -I/usr/include/$(shell uname -m)-linux-gnu
 
 BPF_FS=/sys/fs/bpf
 PIN_OBJECT_NS_PATH=/sys/fs/bpf
-PIN_GLOBAL_NS_PATH=/sys/fs/bpf/tc/globals
 
 MACROS:=
 CNI_MODE ?= false
@@ -55,7 +54,6 @@ $(BPF_FS):
 
 init-bpffs:
 	mountpoint -q ${BPF_FS} || mount -t bpf bpf ${BPF_FS}
-	[ -d ${PIN_GLOBAL_NS_PATH} ] || sudo mkdir -p ${PIN_GLOBAL_NS_PATH}
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(MACROS) -c $< -o $@
@@ -73,7 +71,7 @@ load-map-osm_cki_fib:
 	[ -f $(PIN_OBJECT_NS_PATH)/osm_cki_fib ] || sudo bpftool map create $(PIN_OBJECT_NS_PATH)/osm_cki_fib type lru_hash key 8 value 24 entries 65535 name osm_cki_fib
 
 load-map-osm_pod_fib:
-	[ -f $(PIN_GLOBAL_NS_PATH)/osm_pod_fib ] || sudo bpftool map create $(PIN_GLOBAL_NS_PATH)/osm_pod_fib type hash key 16 value 484 entries 1024 name osm_pod_fib
+	[ -f $(PIN_OBJECT_NS_PATH)/osm_pod_fib ] || sudo bpftool map create $(PIN_OBJECT_NS_PATH)/osm_pod_fib type hash key 16 value 484 entries 1024 name osm_pod_fib
 
 load-map-osm_proc_fib:
 	[ -f $(PIN_OBJECT_NS_PATH)/osm_proc_fib ] || sudo bpftool map create $(PIN_OBJECT_NS_PATH)/osm_proc_fib type lru_hash key 4 value 4 entries 1024 name osm_proc_fib
@@ -85,8 +83,7 @@ load-map-osm_mark_fib:
 	[ -f $(PIN_OBJECT_NS_PATH)/osm_mark_fib ] || sudo bpftool map create $(PIN_OBJECT_NS_PATH)/osm_mark_fib type hash key 4 value 16 entries 65535 name osm_mark_fib
 
 load-map-osm_nat_fib:
-	MAPID=`sudo bpftool map show | grep pair_original | awk -F':' '{print $$1}'`;[ -z $${MAPID} ] || sudo bpftool map pin id $${MAPID} $(PIN_GLOBAL_NS_PATH)/osm_nat_fib
-	[ -f $(PIN_GLOBAL_NS_PATH)/osm_nat_fib ] || sudo bpftool map create $(PIN_GLOBAL_NS_PATH)/osm_nat_fib type lru_hash key 36 value 24 entries 65535 name osm_nat_fib
+	[ -f $(PIN_OBJECT_NS_PATH)/osm_nat_fib ] || sudo bpftool map create $(PIN_OBJECT_NS_PATH)/osm_nat_fib type lru_hash key 36 value 24 entries 65535 name osm_nat_fib
 
 load-map-osm_sock_fib:
 	[ -f $(PIN_OBJECT_NS_PATH)/osm_sock_fib ] || sudo bpftool map create $(PIN_OBJECT_NS_PATH)/osm_sock_fib type sockhash key 36 value 4 entries 65535 name osm_sock_fib
@@ -94,16 +91,16 @@ load-map-osm_sock_fib:
 clean-maps:
 	sudo rm -f \
 		$(PIN_OBJECT_NS_PATH)/osm_sock_fib \
-		$(PIN_GLOBAL_NS_PATH)/osm_nat_fib \
+		$(PIN_OBJECT_NS_PATH)/osm_nat_fib \
 		$(PIN_OBJECT_NS_PATH)/osm_proc_fib \
 		$(PIN_OBJECT_NS_PATH)/osm_cgr_fib \
-		$(PIN_GLOBAL_NS_PATH)/osm_pod_fib \
+		$(PIN_OBJECT_NS_PATH)/osm_pod_fib \
 		$(PIN_OBJECT_NS_PATH)/osm_cki_fib \
 		$(PIN_OBJECT_NS_PATH)/osm_mark_fib
 
 load-osm_cni_sock_opt: load-map-osm_nat_fib
 	sudo bpftool -m prog load osm_cni_sock_opt.o $(PIN_OBJECT_NS_PATH)/get_sockopts \
-		map name osm_nat_fib pinned $(PIN_GLOBAL_NS_PATH)/osm_nat_fib
+		map name osm_nat_fib pinned $(PIN_OBJECT_NS_PATH)/osm_nat_fib
 
 attach-osm_cni_sock_opt:
 	sudo bpftool cgroup attach $(CGROUP2_PATH) getsockopt pinned $(PIN_OBJECT_NS_PATH)/get_sockopts
@@ -126,7 +123,7 @@ clean-osm_cni_msg_redirect:
 load-osm_cni_grp_connect: load-map-osm_cki_fib load-map-osm_pod_fib load-map-osm_proc_fib load-map-osm_cgr_fib load-map-osm_mark_fib
 	sudo bpftool -m prog loadall osm_cni_grp_connect.o $(PIN_OBJECT_NS_PATH)/connect \
 		map name osm_cki_fib pinned $(PIN_OBJECT_NS_PATH)/osm_cki_fib \
-		map name osm_pod_fib pinned $(PIN_GLOBAL_NS_PATH)/osm_pod_fib \
+		map name osm_pod_fib pinned $(PIN_OBJECT_NS_PATH)/osm_pod_fib \
 		map name osm_mark_fib pinned $(PIN_OBJECT_NS_PATH)/osm_mark_fib \
 		map name osm_proc_fib pinned $(PIN_OBJECT_NS_PATH)/osm_proc_fib \
 		map name osm_cgr_fib pinned $(PIN_OBJECT_NS_PATH)/osm_cgr_fib
@@ -142,7 +139,7 @@ load-osm_cni_sock_ops: load-map-osm_cki_fib load-map-osm_proc_fib load-map-osm_n
 	sudo bpftool -m prog load osm_cni_sock_ops.o $(PIN_OBJECT_NS_PATH)/sockops \
 		map name osm_cki_fib pinned $(PIN_OBJECT_NS_PATH)/osm_cki_fib \
 		map name osm_proc_fib pinned $(PIN_OBJECT_NS_PATH)/osm_proc_fib \
-		map name osm_nat_fib pinned $(PIN_GLOBAL_NS_PATH)/osm_nat_fib \
+		map name osm_nat_fib pinned $(PIN_OBJECT_NS_PATH)/osm_nat_fib \
 		map name osm_sock_fib pinned $(PIN_OBJECT_NS_PATH)/osm_sock_fib
 
 attach-osm_cni_sock_ops:

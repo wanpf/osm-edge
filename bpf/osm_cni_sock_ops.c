@@ -1,16 +1,3 @@
-/*
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 #include "headers/helpers.h"
 #include "headers/maps.h"
 #include "headers/mesh.h"
@@ -53,6 +40,7 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops)
                        pid, &ip);
             }
         }
+#ifdef DEBUG
         __u32 remote_ip4 = get_ipv4(p.dip);
         __u32 local_ip4 = get_ipv4(p.sip);
         debugf("osm_cni_sockops_ipv4 [established] remote_ip4: %pI4 -> "
@@ -61,6 +49,7 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops)
         debugf("osm_cni_sockops_ipv4 [established] remote_port: %d -> "
                "local_port: %d",
                bpf_htons(p.dport), skops->local_port);
+#endif
         // get_sockopts can read pid and cookie,
         // we should write a new map named osm_nat_fib
         bpf_map_update_elem(&osm_nat_fib, &p, &dd, BPF_ANY);
@@ -68,6 +57,7 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops)
     } else if (skops->local_port == OUT_REDIRECT_PORT ||
                skops->local_port == IN_REDIRECT_PORT ||
                skops->remote_ip4 == sidecar_ip) {
+#ifdef DEBUG
         __u32 remote_ip4 = get_ipv4(p.dip);
         __u32 local_ip4 = get_ipv4(p.sip);
         debugf("osm_cni_sockops_ipv4 [established] remote_ip4: %pI4 -> "
@@ -76,6 +66,7 @@ static inline int osm_cni_sockops_ipv4(struct bpf_sock_ops *skops)
         debugf("osm_cni_sockops_ipv4 [established] remote_port: %d -> "
                "local_port: %d",
                bpf_htons(p.dport), skops->local_port);
+#endif
         bpf_sock_hash_update(skops, &osm_sock_fib, &p, BPF_NOEXIST);
     }
     return 0;
