@@ -46,7 +46,8 @@
                 __cluster = clusterCache.get(balancer.next({})?.id),
                 failoverBalancer && (
                   _failoverCluster = clusterCache.get(failoverBalancer.next({})?.id)
-                )
+                ),
+                true
               )
             ) : (
               (path) => matchPath(path) && (
@@ -55,7 +56,8 @@
                 __cluster = clusterCache.get(balancer.next({})?.id),
                 failoverBalancer && (
                   _failoverCluster = clusterCache.get(failoverBalancer.next({})?.id)
-                )
+                ),
+                true
               )
             ),
             allowedMethods = config.Methods || allMethods,
