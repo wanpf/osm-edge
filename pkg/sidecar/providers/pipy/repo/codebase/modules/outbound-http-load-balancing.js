@@ -106,7 +106,7 @@
     (_clusterConfig = clusterConfigs.get(__cluster)) && (
       _muxHttpOptions = _clusterConfig.muxHttpOptions,
       _clusterConfig.failoverBalancer && (
-        _failoverObject = _clusterConfig.failoverBalancer.next()
+        _failoverObject = _clusterConfig.failoverBalancer.borrow()
       )
     )
   )
