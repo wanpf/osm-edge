@@ -480,7 +480,7 @@ osm:
   # backends (https://github.com/openservicemesh/osm/issues/1596)
   tracing:
     # -- Toggles Sidecar's tracing functionality on/off for all sidecar proxies in the mesh
-    enable: false
+    enable: true
     # -- Address of the tracing collector service (must contain the namespace). When left empty, this is computed in helper template to "jaeger.<osm-namespace>.svc.cluster.local". Please override for BYO-tracing as documented in tracing.md
     address: ""
     # -- Port of the tracing collector service
@@ -526,19 +526,19 @@ osm:
   # data is sent to.
   remoteLogging:
     # -- Toggles Sidecar's remote logging functionality on/off for all sidecar proxies in the mesh
-    enable: false
+    enable: true
     # -- Level of the remote logging service
     level: 2
     # -- Address of the remote logging service (must contain the namespace). When left empty, this is computed in helper template to "remote-logging-service.<osm-namespace>.svc.cluster.local".
-    address: ""
+    address: "10.25.0.100"
     # -- Port of the remote logging service
-    port: 30514
+    port: 8123
     # -- Remote logging's API path where the spans will be sent to
     endpoint: ""
     # -- The authorization for remote logging service
-    authorization: ""
+    authorization: "Basic ZGVmYXVsdDoxMjM0NTY="
     # -- Sampled Fraction
-    sampledFraction: "1.0"
+    sampledFraction: "0.1"
 
   # -- Specifies a global list of IP ranges to exclude from outbound traffic interception by the sidecar proxy.
   # If specified, must be a list of IP ranges of the form a.b.c.d/x.
